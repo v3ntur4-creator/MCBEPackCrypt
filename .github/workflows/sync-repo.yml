@@ -8,6 +8,10 @@ on:
   workflow_dispatch:
     # 支持手动触发
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
