@@ -37,64 +37,54 @@ jobs:
       run: |
         git fetch source
     
-    - name: Backup GitHub Actions workflow and sync info
+    - name: Backup protected files
       run: |
-        # 备份当前的.github目录和同步说明文档
-        cp -r .github /tmp/github-backup
-        if [ -f "SYNC_INFO.md" ]; then
-          cp SYNC_INFO.md /tmp/sync-info-backup.md
-        fi
-        if [ -f "SYNC_INFO_ZH.md" ]; then
-          cp SYNC_INFO_ZH.md /tmp/sync-info-zh-backup.md
-        fi
-        echo "GitHub Actions workflow and sync info backed up"
+        # 备份需要保护的文件
+        mkdir -p /tmp/backup
+        cp -r .github /tmp/backup/
+        cp SYNC_INFO.md /tmp/backup/ 2>/dev/null || true
+        cp SYNC_INFO_ZH.md /tmp/backup/ 2>/dev/null || true
+        echo "Protected files backed up"
     
-    - name: Sync main branch
+    - name: Merge from source repository
       run: |
-        # 检查是否有更新
-        if git diff --quiet HEAD source/main; then
-          echo "No changes detected, skipping sync"
-        else
-          echo "Changes detected, syncing..."
-          # 使用reset --hard来完全同步，但保护.github目录
-          git reset --hard source/main
-          echo "Sync completed successfully"
-        fi
+        # 直接合并源仓库的更改
+        git merge source/main --no-edit || {
+          echo "Merge conflict detected, using source version for conflicted files except protected ones"
+          git checkout source/main -- . || true
+          git checkout HEAD -- .github/ SYNC_INFO.md SYNC_INFO_ZH.md 2>/dev/null || true
+          git add .
+        }
+        echo "Merge completed"
     
-    - name: Restore GitHub Actions workflow and sync info
+    - name: Restore protected files and update timestamps
       run: |
-        # 恢复.github目录，确保工作流不会丢失
-        rm -rf .github
-        cp -r /tmp/github-backup .github
-        # 恢复同步说明文档并更新时间戳
+        # 恢复保护的文件并更新时间戳
+        cp -r /tmp/backup/.github .
         CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')
-        if [ -f "/tmp/sync-info-backup.md" ]; then
-          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/sync-info-backup.md > SYNC_INFO.md
+        if [ -f "/tmp/backup/SYNC_INFO.md" ]; then
+          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/backup/SYNC_INFO.md > SYNC_INFO.md
         fi
-        if [ -f "/tmp/sync-info-zh-backup.md" ]; then
-          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/sync-info-zh-backup.md > SYNC_INFO_ZH.md
+        if [ -f "/tmp/backup/SYNC_INFO_ZH.md" ]; then
+          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/backup/SYNC_INFO_ZH.md > SYNC_INFO_ZH.md
         fi
-        echo "GitHub Actions workflow and sync info restored with updated timestamp"
+        echo "Protected files restored with updated timestamp"
     
     - name: Commit and push changes
       run: |
-        # 检查是否有需要提交的更改
-        if ! git diff --quiet || ! git diff --cached --quiet; then
-          git add .
-          git commit -m "Auto-sync from source repository [$(date '+%Y-%m-%d %H:%M:%S')]"
+        # 添加所有更改并提交
+        git add .
+        if ! git diff --cached --quiet; then
+          git commit -m "Auto-sync from source repository [$(date '+%Y-%m-%d %H:%M:%S UTC')]"
           git push origin main
-          echo "Changes committed and pushed"
+          echo "✅ Changes committed and pushed successfully"
         else
-          echo "No changes to commit"
+          echo "ℹ️ No changes to commit"
         fi
     
-    - name: Sync tags
+    - name: Sync summary
       run: |
-        git fetch source --tags
-        git push origin --tags
-    
-    - name: Create sync summary
-      run: |
-        echo "Repository sync completed at $(date)"
-        echo "Source: https://cnb.cool/EnderRealm/public/MCBEPackCrypt"
-        echo "Target: ${{ github.repository }}"
+        echo "🔄 Repository sync completed at $(date)"
+        echo "📍 Source: https://cnb.cool/EnderRealm/public/MCBEPackCrypt"
+        echo "🎯 Target: ${{ github.repository }}"
+        echo "✨ Sync process finished successfully"
