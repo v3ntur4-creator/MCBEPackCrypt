@@ -1,0 +1,44 @@
+# MCBEPackCrypt 构建流水线
+
+main:
+  # 当代码推送到main分支时触发构建
+  push:
+    - name: "构建MCBEPackCrypt镜像流水线"
+      docker:
+        image: node:22
+      services:
+        - docker
+      stages:
+        - name: "安装依赖"
+          script: |
+            echo "安装项目依赖..."
+            npm ci
+        - name: "构建后端"
+          script: |
+            echo "编译TypeScript后端代码..."
+            npm run build:backend
+        - name: "构建前端"
+          script: |
+            echo "使用Vite构建前端资源..."
+            npm run build:frontend
+        - name: "清理开发依赖"
+          script: |
+            echo "清理开发依赖以减小镜像大小..."
+            npm prune --production
+            echo "清理完成，只保留生产环境必需文件"
+        - name: "构建Docker镜像"
+          script: |
+            echo "开始构建MCBEPackCrypt Docker镜像..."
+            docker build -t mcbepackcrypt:latest .
+            docker tag mcbepackcrypt:latest ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
+            docker tag mcbepackcrypt:latest ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:${CNB_COMMIT_SHORT}
+            echo "Docker镜像构建完成！"
+            docker images | grep mcbepackcrypt
+        - name: "推送Docker镜像"
+          script: |
+            echo "推送Docker镜像到制品库..."
+            docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
+            docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:${CNB_COMMIT_SHORT}
+            echo "镜像推送完成！"
+
+# 更多资料见 https://docs.cnb.cool/build/quick-start.html

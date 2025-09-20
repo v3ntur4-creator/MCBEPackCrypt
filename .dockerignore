@@ -1,0 +1,78 @@
+# 依赖目录
+node_modules
+
+# 日志文件
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建产物（在容器内重新构建）
+dist
+
+# 环境文件（除了示例配置）
+.env
+.env.local
+.env.development
+.env.test
+.env.production.local
+
+# 临时文件和上传目录
+temp
+uploads
+encrypted
+packaged
+
+# Git相关
+.git
+.gitignore
+
+# 编辑器配置
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+ehthumbs.db
+Thumbs.db
+
+# 测试相关
+test-results
+coverage
+*.lcov
+.nyc_output
+
+# CI/CD配置
+.cnb.yml
+
+# 文档文件
+*.md
+!README.md
+
+# 资源文件（测试用）
+resources
+
+# SSL证书
+*.pem
+*.key
+*.crt
+*.csr
+
+# 备份文件
+*.bak
+*.backup
+
+# 压缩文件
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z

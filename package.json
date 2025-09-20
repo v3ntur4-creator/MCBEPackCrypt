@@ -1,0 +1,69 @@
+{
+  "name": "mcbepackcrypt",
+  "version": "1.0.0",
+  "description": "A web-based utility for encrypting and decrypting Minecraft Bedrock Edition resource packs",
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "start": "node dist/backend/index.js",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "vite",
+    "dev:backend": "tsx src/backend/index.ts",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:frontend": "vite build",
+    "build:backend": "tsc --project tsconfig.backend.json",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "minecraft",
+    "bedrock-edition",
+    "resource-pack",
+    "encryption",
+    "decryption",
+    "web-utility",
+    "typescript",
+    "express",
+    "react"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "antd": "^5.12.8",
+    "archiver": "^6.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "i18next": "^25.5.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "multer": "^1.4.5-lts.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^15.7.3",
+    "react-router-dom": "^7.8.2",
+    "uuid": "^9.0.1",
+    "yauzl": "^2.10.0",
+    "yazl": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@types/uuid": "^10.0.0",
+    "@types/yauzl": "^2.10.3",
+    "@types/yazl": "^3.3.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^8.2.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

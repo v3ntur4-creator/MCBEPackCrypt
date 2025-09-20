@@ -1,0 +1,176 @@
+{
+  "common": {
+    "encrypt": "Encrypt",
+    "decrypt": "Decrypt",
+    "upload": "Upload File",
+    "download": "Download",
+    "reset": "Reset",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "header": {
+    "title": "MCBEPackCrypt",
+    "subtitle": "Minecraft Bedrock Resource Pack Encryption Tool"
+  },
+  "home": {
+    "welcome": "Welcome to MCBEPackCrypt",
+    "description": "Protect your Minecraft Bedrock resource pack creations from unauthorized use and distribution. Choose a feature below to get started."
+  },
+  "features": {
+    "title": "Feature Selection"
+  },
+  "encrypt": {
+    "title": "Resource Pack Encryption",
+    "description": "Protect your Minecraft Bedrock resource packs from unauthorized use and distribution.",
+    "features": {
+      "formats": "Support .zip and .mcpack formats",
+      "key": "Generate secure 16-character key",
+      "fast": "Fast encryption processing",
+      "protection": "Protect intellectual property"
+    },
+    "button": "Start Encryption",
+    "modal": {
+      "title": "Encrypt Resource Pack",
+      "selectFile": "Select Resource Pack File",
+      "dragText": "Click or drag files to this area to upload",
+      "hint": "Support .zip and .mcpack format resource pack files",
+      "validation": {
+        "required": "Please select a file to encrypt",
+        "unsupported": "Unsupported file format, only {{formats}} formats are supported"
+      }
+    },
+    "progress": {
+      "starting": "Starting encryption...",
+      "processing_directories": "Processing directory structure...",
+      "preparing_files": "Preparing file encryption...",
+      "encrypting": "Parallel encrypting files...",
+      "processing_results": "Processing encryption results...",
+      "processing_excluded": "Processing excluded files...",
+      "generating_contents": "Generating configuration file...",
+      "finalizing": "Finalizing encryption...",
+      "completed": "Encryption completed!",
+      "error": "Encryption failed"
+    },
+    "result": {
+      "success": "Resource pack encrypted successfully!",
+      "description": "Your file has been successfully encrypted. Please click the buttons below to download the files.",
+      "files": {
+        "encrypted": "Encrypted File",
+        "key": "Key File"
+      },
+      "warning": "⚠️ Please keep the key file safe. You cannot decrypt without it!"
+    }
+  },
+  "decrypt": {
+    "title": "Resource Pack Decryption",
+    "description": "Use the correct key file to decrypt encrypted resource packs and restore original files.",
+    "features": {
+      "files": "Requires encrypted file(.zip) and key(.key)",
+      "validation": "Secure key validation",
+      "fast": "Fast decryption processing",
+      "restore": "Restore original resource pack"
+    },
+    "button": "Start Decryption",
+    "modal": {
+      "title": "Decrypt Resource Pack",
+      "encryptedFile": "Encrypted Resource Pack File",
+      "keyFile": "Key File",
+      "uploadEncrypted": "Upload Encrypted Resource Pack",
+      "uploadKey": "Upload Key File",
+      "encryptedHint": "Drag or click to upload .zip format encrypted file",
+      "keyHint": "Drag or click to upload .key format key file",
+      "preserveContents": "Preserve contents.json file (for debugging or analyzing encryption structure)",
+      "validation": {
+        "encryptedRequired": "Please select an encrypted resource pack file",
+        "keyRequired": "Please select a key file",
+        "bothRequired": "Please select both encrypted file and key file",
+        "encryptedFormat": "Encrypted file must be in .zip format",
+        "keyFormat": "Key file must be in .key format"
+      }
+    },
+    "progress": {
+      "starting": "Starting decryption...",
+      "decrypting_contents": "Decrypting configuration file...",
+      "preparing_files": "Preparing file decryption...",
+      "decrypting": "Parallel decrypting files...",
+      "processing_results": "Processing decryption results...",
+      "copying_excluded": "Copying excluded files...",
+      "completed": "Decryption completed!",
+      "error": "Decryption failed"
+    },
+    "result": {
+      "success": "Resource pack decrypted successfully!",
+      "description": "Your file has been successfully decrypted. Please click the button below to download the file."
+    }
+  },
+  "result": {
+    "encryptSuccess": "Encryption Completed!",
+    "encryptMessage": "Your file has been successfully encrypted. Please click the buttons below to download the files.",
+    "decryptSuccess": "Decryption Completed!",
+    "decryptMessage": "Your file has been successfully decrypted. Please click the button below to download the file.",
+    "expireMessage": "Download link will expire in {{time}}",
+    "download": "Download File",
+    "fileInfo": "File Info:",
+    "encryptedFile": "Encrypted File",
+    "keyFile": "Key File",
+    "decryptedFile": "Decrypted File",
+    "keyWarning": "Please keep the key file safe. You cannot decrypt without it!",
+    "decryptComplete": "File has been successfully decrypted and is ready to use"
+  },
+  "settings": {
+      "title": "Settings",
+      "language": "Language",
+      "theme": "Theme",
+      "themeAuto": "Auto Detect",
+      "themeLight": "Light Mode",
+      "themeDark": "Dark Mode"
+    },
+  "language": {
+    "auto": "Auto Detect",
+    "zh-CN": "简体中文",
+    "en-US": "English"
+  },
+  "footer": {
+    "copyright": "EnderRealm All Rights Reserved",
+    "license": "Open Source License",
+    "repository": "Code Repository",
+    "issues": "Report Issues",
+    "issuePage": "Issue Page"
+  },
+  "downloadTask": {
+    "title": "Download Task Reminder",
+    "pendingTitle": "You have an unfinished download task",
+    "pendingMessage": "We detected that you have an unfinished download task. Please choose whether to continue the download.",
+    "remainingTime": "Remaining time",
+    "download": "Complete Download",
+    "discard": "Discard Task"
+  },
+  "errorModal": {
+    "title": "Resource Pack Processing Error",
+    "message": "An exception occurred while processing the resource pack, unable to complete the current operation.",
+    "suggestions": {
+      "title": "Suggested Solutions:",
+      "copyStack": "Copy the stack trace content and seek help from AI tools, technical communities, etc. to troubleshoot the issue",
+      "submitIssue": "If the problem persists, you can organize the stack trace information and submit an Issue, we will assist in handling it"
+    },
+    "stackTrace": {
+      "title": "Stack Trace Information",
+      "copy": "Copy Stack Trace",
+      "copied": "Copied to clipboard"
+    },
+    "note": "(Note: Please copy the complete error stack below, not a screenshot of this window, for more accurate problem diagnosis)",
+    "close": "Close",
+    "issuePage": "Issue Page"
+  }
+}
