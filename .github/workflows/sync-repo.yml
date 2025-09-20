@@ -1,0 +1,96 @@
+name: Sync Repository
+
+# 触发条件：每24小时自动执行和手动触发
+on:
+  schedule:
+    # 每天UTC时间00:00执行（北京时间08:00）
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # 支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout current repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "actions@github.com"
+    
+    - name: Add remote source repository
+      run: |
+        git remote add source https://cnb.cool/EnderRealm/public/MCBEPackCrypt
+        git remote -v
+    
+    - name: Fetch from source repository
+      run: |
+        git fetch source
+    
+    - name: Backup GitHub Actions workflow and sync info
+      run: |
+        # 备份当前的.github目录和同步说明文档
+        cp -r .github /tmp/github-backup
+        if [ -f "SYNC_INFO.md" ]; then
+          cp SYNC_INFO.md /tmp/sync-info-backup.md
+        fi
+        if [ -f "SYNC_INFO_ZH.md" ]; then
+          cp SYNC_INFO_ZH.md /tmp/sync-info-zh-backup.md
+        fi
+        echo "GitHub Actions workflow and sync info backed up"
+    
+    - name: Sync main branch
+      run: |
+        # 检查是否有更新
+        if git diff --quiet HEAD source/main; then
+          echo "No changes detected, skipping sync"
+        else
+          echo "Changes detected, syncing..."
+          # 使用reset --hard来完全同步，但保护.github目录
+          git reset --hard source/main
+          echo "Sync completed successfully"
+        fi
+    
+    - name: Restore GitHub Actions workflow and sync info
+      run: |
+        # 恢复.github目录，确保工作流不会丢失
+        rm -rf .github
+        cp -r /tmp/github-backup .github
+        # 恢复同步说明文档并更新时间戳
+        CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')
+        if [ -f "/tmp/sync-info-backup.md" ]; then
+          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/sync-info-backup.md > SYNC_INFO.md
+        fi
+        if [ -f "/tmp/sync-info-zh-backup.md" ]; then
+          sed "s/\[AUTO_UPDATE_TIME\]/$CURRENT_TIME/g" /tmp/sync-info-zh-backup.md > SYNC_INFO_ZH.md
+        fi
+        echo "GitHub Actions workflow and sync info restored with updated timestamp"
+    
+    - name: Commit and push changes
+      run: |
+        # 检查是否有需要提交的更改
+        if ! git diff --quiet || ! git diff --cached --quiet; then
+          git add .
+          git commit -m "Auto-sync from source repository [$(date '+%Y-%m-%d %H:%M:%S')]"
+          git push origin main
+          echo "Changes committed and pushed"
+        else
+          echo "No changes to commit"
+        fi
+    
+    - name: Sync tags
+      run: |
+        git fetch source --tags
+        git push origin --tags
+    
+    - name: Create sync summary
+      run: |
+        echo "Repository sync completed at $(date)"
+        echo "Source: https://cnb.cool/EnderRealm/public/MCBEPackCrypt"
+        echo "Target: ${{ github.repository }}"

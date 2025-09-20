@@ -1,0 +1,57 @@
+name: Auto Close Issues
+
+# 当有新的Issue被打开时触发
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  close-issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Close Issue and add comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issueNumber = context.payload.issue.number;
+          
+          // 添加评论
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issueNumber,
+            body: `Hello! Thank you very much for your willingness to contribute or provide feedback—we truly appreciate your effort and attention to the project.
+          
+          However, please note that this repository is only a synchronization repository and does not accept direct PRs or Issues.
+          
+          If you wish to formally submit your contributions or report issues, kindly visit our main project repository at: \`https://cnb.cool/EnderRealm/public/MCBEPackCrypt\`
+          
+          Important Notes:
+          1. The main repository is hosted on a China-region webpage. For users outside China, potential latency may occur. To ensure a smoother experience, we recommend using a VPN or accessing it during periods when your network connection is most stable.
+          2. The main repository webpage is only available in Chinese. Please prepare a webpage translation tool in advance for easier navigation.
+          
+          This PR/Issue will be automatically closed. Thank you again for your understanding and support of the project!
+          
+          您好！非常感谢您愿意为项目提供贡献或反馈——您的投入与对项目的关注，我们由衷感激。
+          
+          需要说明的是，本仓库仅为同步仓库，暂不接收直接提交的PR或Issue。
+          
+          若您希望正式提交贡献或反馈问题，烦请前往主项目仓库操作，地址为： \`https://cnb.cool/EnderRealm/public/MCBEPackCrypt\`
+          
+          重要说明：
+          1. 主仓库为中国区网页，非中国区用户访问时可能存在延迟。为保障流畅体验，建议您使用VPN，或选择在自身网络状态最佳的时段访问。
+          2. 主仓库网页目前仅提供中文版本，请您提前准备网页翻译工具，以便顺利使用。
+          
+          当前PR/Issue将被自动关闭，再次感谢您的理解与对项目的支持！`
+          });
+          
+          // 关闭Issue
+          await github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issueNumber,
+            state: 'closed'
+          });
+          
+          console.log(`Issue #${issueNumber} has been automatically closed.`);
