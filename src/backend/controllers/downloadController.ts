@@ -13,7 +13,7 @@ export class DownloadController {
       if (!downloadId) {
         res.status(400).json({
           success: false,
-          message: '缺少下载ID'
+          message: 'Missing download ID'
         });
         return;
       }
@@ -26,7 +26,7 @@ export class DownloadController {
       if (!filePath) {
         res.status(404).json({
           success: false,
-          message: '下载链接无效、已过期或已被使用'
+          message: 'Download link is invalid, expired, or already used'
         });
         return;
       }
@@ -48,7 +48,7 @@ export class DownloadController {
           if (!res.headersSent) {
             res.status(500).json({
               success: false,
-              message: '文件下载失败'
+              message: 'File download failed'
             });
           }
         } else {
@@ -62,8 +62,8 @@ export class DownloadController {
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
-          message: '下载过程中发生错误',
-          error: error instanceof Error ? error.message : '未知错误'
+          message: 'Error occurred during download',
+          error: error instanceof Error ? error.message : 'Unknown error'
         });
       }
     }
@@ -94,8 +94,8 @@ export class DownloadController {
       
       res.status(500).json({
         success: false,
-        message: '获取下载统计信息失败',
-        error: error instanceof Error ? error.message : '未知错误'
+        message: 'Failed to get download statistics',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }

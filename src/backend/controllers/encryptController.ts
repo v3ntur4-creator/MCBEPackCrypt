@@ -20,7 +20,7 @@ export class EncryptController {
       if (!req.file) {
         res.status(400).json({ 
           success: false, 
-          message: '请上传一个资源包文件' 
+          message: 'Please upload a resource pack file' 
         });
         return;
       }
@@ -70,7 +70,7 @@ export class EncryptController {
 
       res.json({
         success: true,
-        message: '资源包加密成功',
+        message: 'Resource pack encrypted successfully',
         data: {
           downloadId,
           downloadUrl: `/api/download/${downloadId}`,
@@ -92,8 +92,8 @@ export class EncryptController {
 
       res.status(500).json({
         success: false,
-        message: '加密过程中发生错误',
-        error: error instanceof Error ? error.message : '未知错误'
+        message: 'Error occurred during encryption',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }

@@ -58,7 +58,7 @@ app.use('*', (req, res) => {
   if (req.originalUrl.startsWith('/api/')) {
     res.status(404).json({
       success: false,
-      message: 'API端点不存在',
+      message: 'API endpoint not found',
       availableEndpoints: {
         health: '/api/health',
         encrypt: 'POST /api/encrypt',
@@ -74,7 +74,7 @@ app.use('*', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'dist/frontend/index.html'));
   } else {
     // 开发环境中，返回404
-    res.status(404).json({ message: '页面不存在' });
+    res.status(404).json({ message: 'Page not found' });
   }
 });
 
@@ -84,7 +84,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || '服务器内部错误',
+    message: err.message || 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });

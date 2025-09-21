@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('获取进度失败:', error);
+      console.error('Failed to get progress:', error);
     }
   };
 
@@ -180,7 +180,7 @@ const HomePage: React.FC = () => {
       setEncryptFile(null);
       encryptForm.resetFields();
     } catch (error) {
-      console.error('加密错误:', error);
+      console.error('Encryption error:', error);
       setEncryptProgress({ current: 0, total: 100, status: 'error' });
       setErrorInfo({
           message: error instanceof Error ? error.message : (error as string || t('encrypt.progress.error')),
@@ -249,7 +249,7 @@ const HomePage: React.FC = () => {
       setKeyFile(null);
       decryptForm.resetFields();
     } catch (error) {
-      console.error('解密错误:', error);
+      console.error('Decryption error:', error);
       setDecryptProgress({ current: 0, total: 100, status: 'error' });
       setErrorInfo({
           message: error instanceof Error ? error.message : (error as string || t('decrypt.progress.error')),

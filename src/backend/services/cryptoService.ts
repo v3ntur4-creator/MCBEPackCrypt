@@ -89,7 +89,7 @@ export class CryptoService extends EventEmitter {
           // 确保ZIP文件被关闭
           if (zipfile) {
             zipfile.close();
-            console.log('ZIP文件已关闭');
+            console.log('ZIP file closed');
           }
           this.updateProgress(0, 100, 'error');
           reject(error);
@@ -102,11 +102,11 @@ export class CryptoService extends EventEmitter {
    * 解密资源包
    */
   async decryptPack(inputPath: string, outputPath: string, key: string | Buffer, preserveContentsJson: boolean = false): Promise<void> {
-    console.log('=== CryptoService.decryptPack 开始 ===');
-    console.log('输入文件:', inputPath);
-    console.log('输出文件:', outputPath);
-    console.log('密钥类型:', typeof key);
-    console.log('密钥长度:', key.length);
+    console.log('=== CryptoService.decryptPack started ===');
+    console.log('Input file:', inputPath);
+    console.log('Output file:', outputPath);
+    console.log('Key type:', typeof key);
+    console.log('Key length:', key.length);
     
     this.updateProgress(0, 100, 'starting');
     if (!CryptoService.checkArgs(inputPath, outputPath, key)) {
@@ -114,21 +114,21 @@ export class CryptoService extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
-      console.log('正在打开ZIP文件...');
+      console.log('Opening ZIP file...');
       yauzl.open(inputPath, { lazyEntries: true }, async (err, zipfile) => {
         if (err) {
-          console.error('打开ZIP文件失败:', err);
+          console.error('Failed to open ZIP file:', err);
           return reject(err);
         }
         
-        console.log('ZIP文件打开成功，开始解密...');
+        console.log('ZIP file opened successfully, starting decryption...');
         try {
           await this.decrypt0(zipfile!, outputPath, key, preserveContentsJson);
-          console.log('=== 解密完成 ===');
+          console.log('=== Decryption completed ===');
           this.updateProgress(100, 100, 'completed');
           resolve();
         } catch (error) {
-          console.error('解密过程中出错:', error);
+          console.error('Error during decryption:', error);
           this.updateProgress(0, 100, 'error');
           reject(error);
         }
@@ -137,11 +137,11 @@ export class CryptoService extends EventEmitter {
   }
 
   private async encrypt0(zipfile: yauzl.ZipFile, outputPath: string, key: string): Promise<void> {
-    console.log('开始加密流程...');
+    console.log('Starting encryption process...');
     
     // 首先读取所有ZIP条目
     const entries = await CryptoService.getAllZipEntriesStatic(zipfile);
-    console.log(`ZIP文件包含 ${entries.length} 个条目`);
+    console.log(`ZIP file contains ${entries.length} entries`);
     
     // 查找包UUID
     const uuid = await CryptoService.findPackUUIDFromEntries(entries, zipfile);
@@ -193,7 +193,7 @@ export class CryptoService extends EventEmitter {
           }
           
           this.updateProgress(40, 100, `encrypting ${encryptTasks.length} files in parallel`);
-          console.log(`开始并行加密 ${encryptTasks.length} 个文件...`);
+          console.log(`Starting parallel encryption of ${encryptTasks.length} files...`);
           
           // 创建Worker任务
           const workerTasks: WorkerTask[] = encryptTasks.map(task => ({
@@ -249,7 +249,7 @@ export class CryptoService extends EventEmitter {
               // 确保ZIP文件被关闭
               if (zipfile) {
                 zipfile.close();
-                console.log('ZIP文件已关闭');
+                console.log('ZIP file closed');
               }
               resolve();
             })
@@ -257,7 +257,7 @@ export class CryptoService extends EventEmitter {
               // 确保ZIP文件被关闭
               if (zipfile) {
                 zipfile.close();
-                console.log('ZIP文件已关闭');
+                console.log('ZIP file closed');
               }
               reject(error);
             });
@@ -267,7 +267,7 @@ export class CryptoService extends EventEmitter {
           // 确保ZIP文件被关闭
           if (zipfile) {
             zipfile.close();
-            console.log('ZIP文件已关闭');
+            console.log('ZIP file closed');
           }
           reject(error);
         }
@@ -282,7 +282,7 @@ export class CryptoService extends EventEmitter {
     
     // 一次性读取所有ZIP条目，避免重复读取
     const allEntries = await CryptoService.getAllZipEntriesStatic(zipfile);
-    console.log(`一次性读取完成，共 ${allEntries.length} 个ZIP条目`);
+    console.log(`Batch reading completed, total ${allEntries.length} ZIP entries`);
     
     this.updateProgress(12, 100, 'decrypting contents.json');
     const keyString = typeof key === 'string' ? key : key.toString('hex');
@@ -323,7 +323,7 @@ export class CryptoService extends EventEmitter {
           }
           
           this.updateProgress(30, 100, `decrypting ${decryptTasks.length} files in parallel`);
-          console.log(`开始并行解密 ${decryptTasks.length} 个文件...`);
+          console.log(`Starting parallel decryption of ${decryptTasks.length} files...`);
           
           // 创建Worker任务
           const workerTasks: WorkerTask[] = decryptTasks.map(task => ({
@@ -427,7 +427,7 @@ export class CryptoService extends EventEmitter {
   }
 
   private async encryptTasksSynchronously(encryptTasks: Array<{entry: yauzl.Entry, data: Buffer, entryKey: string}>): Promise<WorkerResult[]> {
-    console.log('使用同步加密处理文件...');
+    console.log('Using synchronous encryption to process files...');
     const results: WorkerResult[] = [];
     
     for (let i = 0; i < encryptTasks.length; i++) {
@@ -453,12 +453,12 @@ export class CryptoService extends EventEmitter {
         const progress = Math.floor(40 + (i + 1) / encryptTasks.length * 30);
         this.updateProgress(progress, 100, `encrypting file ${i + 1}/${encryptTasks.length}`);
         
-        console.log(`同步加密完成: ${task.entry.fileName}`);
+        console.log(`Synchronous encryption completed: ${task.entry.fileName}`);
       } catch (error) {
-        console.error(`同步加密失败: ${task.entry.fileName}`, error);
+        console.error(`Synchronous encryption failed: ${task.entry.fileName}`, error);
         results.push({
           success: false,
-          error: error instanceof Error ? error.message : '未知错误',
+          error: error instanceof Error ? error.message : 'Unknown error',
           fileName: task.entry.fileName
         });
       }
@@ -468,7 +468,7 @@ export class CryptoService extends EventEmitter {
   }
 
   private async decryptTasksSynchronously(decryptTasks: Array<{contentEntry: ContentEntry, data: Buffer}>): Promise<WorkerResult[]> {
-    console.log('使用同步解密处理文件...');
+    console.log('Using synchronous decryption to process files...');
     const results: WorkerResult[] = [];
     
     for (let i = 0; i < decryptTasks.length; i++) {
@@ -494,12 +494,12 @@ export class CryptoService extends EventEmitter {
         const progress = Math.floor(30 + (i + 1) / decryptTasks.length * 40);
         this.updateProgress(progress, 100, `decrypting file ${i + 1}/${decryptTasks.length}`);
         
-        console.log(`同步解密完成: ${task.contentEntry.path}`);
+        console.log(`Synchronous decryption completed: ${task.contentEntry.path}`);
       } catch (error) {
-        console.error(`同步解密失败: ${task.contentEntry.path}`, error);
+        console.error(`Synchronous decryption failed: ${task.contentEntry.path}`, error);
         results.push({
           success: false,
-          error: error instanceof Error ? error.message : '未知错误',
+          error: error instanceof Error ? error.message : 'Unknown error',
           fileName: task.contentEntry.path
         });
       }
@@ -606,7 +606,7 @@ export class CryptoService extends EventEmitter {
   }
 
   private static async decryptContentsJson(zipfile: yauzl.ZipFile, subPackPath: string, key: string): Promise<Content> {
-    console.log(`开始解密 ${subPackPath}，密钥长度: ${key.length}`);
+    console.log(`Starting decryption of ${subPackPath}, key length: ${key.length}`);
     
     const data = await this.getZipEntryData(zipfile, subPackPath);
     if (!data) {
@@ -617,7 +617,7 @@ export class CryptoService extends EventEmitter {
   }
 
   private static async decryptContentsJsonFromEntries(entries: yauzl.Entry[], zipfile: yauzl.ZipFile, subPackPath: string, key: string): Promise<Content> {
-    console.log(`开始解密 ${subPackPath}，密钥长度: ${key.length}`);
+    console.log(`Starting decryption of ${subPackPath}, key length: ${key.length}`);
     
     const data = await this.getZipEntryDataFromEntries(entries, zipfile, subPackPath);
     if (!data) {
@@ -628,23 +628,23 @@ export class CryptoService extends EventEmitter {
   }
 
   private static decryptContentsJsonData(data: Buffer, subPackPath: string, key: string): Content {
-    console.log(`${subPackPath} 文件大小: ${data.length} 字节`);
+    console.log(`${subPackPath} file size: ${data.length} bytes`);
     
     if (data.length < 0x100 + 32) { // 至少需要头部 + IV + 认证标签
-      throw new Error(`${subPackPath} 文件太小，不是有效的加密文件`);
+      throw new Error(`${subPackPath} file is too small, not a valid encrypted file`);
     }
 
     // 跳过前0x100字节
     const encryptedData = data.slice(0x100);
-    console.log(`跳过头部后的数据大小: ${encryptedData.length} 字节`);
+    console.log(`Data size after skipping header: ${encryptedData.length} bytes`);
     
     // 使用密钥前16字节作为IV
-    console.log(`加密数据长度: ${encryptedData.length}`);
+    console.log(`Encrypted data length: ${encryptedData.length}`);
     
     try {
       const keyBuffer = Buffer.from(key, 'utf8');
       const iv = keyBuffer.slice(0, 16); // 使用密钥前16字节作为IV
-      console.log(`密钥缓冲区长度: ${keyBuffer.length}, IV长度: ${iv.length}`);
+      console.log(`Key buffer length: ${keyBuffer.length}, IV length: ${iv.length}`);
       
       const decipher = crypto.createDecipheriv('aes-256-cfb8', keyBuffer, iv);
       
@@ -653,41 +653,41 @@ export class CryptoService extends EventEmitter {
         decipher.final()
       ]);
       
-      console.log(`解密后数据长度: ${decryptedData.length}`);
+      console.log(`Decrypted data length: ${decryptedData.length}`);
       
       const content: Content = JSON.parse(decryptedData.toString('utf8'));
       console.log('Decrypted content json:', content);
       return content;
     } catch (error) {
-      console.error(`解密 ${subPackPath} 时出错:`, error);
+      console.error(`Error decrypting ${subPackPath}:`, error);
       if (error instanceof Error) {
         if (error.message.includes('bad decrypt')) {
-          throw new Error('密钥错误或文件损坏');
+          throw new Error('Incorrect key or corrupted file');
         }
-        throw new Error(`解密失败: ${error.message}`);
+        throw new Error(`Decryption failed: ${error.message}`);
       }
       throw error;
     }
   }
 
   private static async getZipEntryData(zipfile: yauzl.ZipFile, fileName: string): Promise<Buffer | null> {
-    console.log(`正在读取ZIP条目数据: ${fileName}`);
+    console.log(`Reading ZIP entry data: ${fileName}`);
     
     // 首先获取所有条目
     const entries = await this.getAllZipEntriesStatic(zipfile);
-    console.log(`ZIP条目读取完成，共找到 ${entries.length} 个条目`);
+    console.log(`ZIP entry reading completed, found ${entries.length} entries`);
     
     const targetEntry = entries.find(e => e.fileName === fileName);
     if (!targetEntry) {
-      console.log(`未找到目标文件: ${fileName}`);
+      console.log(`Target file not found: ${fileName}`);
       return null;
     }
 
-    console.log(`找到目标文件: ${fileName}，开始读取数据`);
+    console.log(`Target file found: ${fileName}, starting data reading`);
     return new Promise((resolve, reject) => {
       zipfile.openReadStream(targetEntry, (err: Error | null, readStream?: NodeJS.ReadableStream) => {
         if (err) {
-          console.error(`读取文件流失败: ${fileName}`, err);
+          console.error(`Failed to read file stream: ${fileName}`, err);
           reject(err);
           return;
         }
@@ -695,11 +695,11 @@ export class CryptoService extends EventEmitter {
         const chunks: Buffer[] = [];
         readStream!.on('data', (chunk: Buffer) => chunks.push(chunk));
         readStream!.on('end', () => {
-          console.log(`文件数据读取完成: ${fileName}，大小: ${Buffer.concat(chunks).length} 字节`);
+          console.log(`File data reading completed: ${fileName}, size: ${Buffer.concat(chunks).length} bytes`);
           resolve(Buffer.concat(chunks));
         });
         readStream!.on('error', (error) => {
-          console.error(`读取文件数据时出错: ${fileName}`, error);
+          console.error(`Error reading file data: ${fileName}`, error);
           reject(error);
         });
       });
@@ -707,11 +707,11 @@ export class CryptoService extends EventEmitter {
   }
 
   private static async getZipEntryDataFromEntry(zipfile: yauzl.ZipFile, entry: yauzl.Entry): Promise<Buffer | null> {
-    console.log(`直接从条目读取数据: ${entry.fileName}`);
+    console.log(`Reading data directly from entry: ${entry.fileName}`);
     return new Promise((resolve, reject) => {
       zipfile.openReadStream(entry, (err: Error | null, readStream?: NodeJS.ReadableStream) => {
         if (err) {
-          console.error(`读取文件流失败: ${entry.fileName}`, err);
+          console.error(`Failed to read file stream: ${entry.fileName}`, err);
           reject(err);
           return;
         }
@@ -719,11 +719,11 @@ export class CryptoService extends EventEmitter {
         const chunks: Buffer[] = [];
         readStream!.on('data', (chunk: Buffer) => chunks.push(chunk));
         readStream!.on('end', () => {
-          console.log(`文件数据读取完成: ${entry.fileName}，大小: ${Buffer.concat(chunks).length} 字节`);
+          console.log(`File data reading completed: ${entry.fileName}, size: ${Buffer.concat(chunks).length} bytes`);
           resolve(Buffer.concat(chunks));
         });
         readStream!.on('error', (error) => {
-          console.error(`读取文件数据时出错: ${entry.fileName}`, error);
+          console.error(`Error reading file data: ${entry.fileName}`, error);
           reject(error);
         });
       });
@@ -731,42 +731,42 @@ export class CryptoService extends EventEmitter {
   }
 
   private static async getZipEntryDataFromEntries(entries: yauzl.Entry[], zipfile: yauzl.ZipFile, fileName: string): Promise<Buffer | null> {
-    console.log(`从已读取的条目列表中查找文件: ${fileName}`);
+    console.log(`Searching for file in loaded entry list: ${fileName}`);
     
     const targetEntry = entries.find(e => e.fileName === fileName);
     if (!targetEntry) {
-      console.log(`未找到目标文件: ${fileName}`);
+      console.log(`Target file not found: ${fileName}`);
       return null;
     }
 
-    console.log(`找到目标文件: ${fileName}，开始读取数据`);
+    console.log(`Target file found: ${fileName}, starting data reading`);
     return this.getZipEntryDataFromEntry(zipfile, targetEntry);
   }
 
   private static async getAllZipEntriesStatic(zipfile: yauzl.ZipFile): Promise<yauzl.Entry[]> {
-    console.log('开始读取所有ZIP条目...');
+    console.log('Starting to read all ZIP entries...');
     return new Promise((resolve, reject) => {
       const entries: yauzl.Entry[] = [];
       let entryCount = 0;
       let expectedEntryCount = zipfile.entryCount;
       
-      console.log(`ZIP文件总共包含 ${expectedEntryCount} 个条目`);
+      console.log(`ZIP file contains ${expectedEntryCount} entries in total`);
       
       // 添加超时机制
       const timeout = setTimeout(() => {
-        console.error('读取ZIP条目超时');
-        reject(new Error('读取ZIP条目超时'));
+        console.error('Reading ZIP entries timeout');
+        reject(new Error('Reading ZIP entries timeout'));
       }, 30000); // 30秒超时
       
       zipfile.on('entry', (entry) => {
         entryCount++;
-        console.log(`读取条目 ${entryCount}/${expectedEntryCount}: ${entry.fileName}`);
+        console.log(`Reading entry ${entryCount}/${expectedEntryCount}: ${entry.fileName}`);
         entries.push(entry);
         
         // 检查是否已读取完所有条目
         if (entryCount >= expectedEntryCount) {
           clearTimeout(timeout);
-          console.log(`成功读取所有 ${entries.length} 个ZIP条目`);
+          console.log(`Successfully read all ${entries.length} ZIP entries`);
           // 不触发end事件，直接resolve
           resolve(entries);
           return;
@@ -778,16 +778,16 @@ export class CryptoService extends EventEmitter {
 
       zipfile.on('error', (error) => {
         clearTimeout(timeout);
-        console.error('读取ZIP文件时出错:', error);
+        console.error('Error reading ZIP file:', error);
         reject(error);
       });
 
-      console.log('调用zipfile.readEntry()开始读取...');
+      console.log('Calling zipfile.readEntry() to start reading...');
       try {
         zipfile.readEntry();
       } catch (error) {
         clearTimeout(timeout);
-        console.error('调用readEntry()时出错:', error);
+        console.error('Error calling readEntry():', error);
         reject(error);
       }
     });
@@ -813,7 +813,7 @@ export class CryptoService extends EventEmitter {
   }
 
   private static async findPackUUIDFromEntries(entries: yauzl.Entry[], zipfile: yauzl.ZipFile): Promise<string> {
-    console.log('从条目列表中查找manifest.json...');
+    console.log('Searching for manifest.json in entry list...');
     const manifestEntry = entries.find(e => e.fileName === 'manifest.json');
     if (!manifestEntry) {
       throw new Error('manifest file not exists');
@@ -833,10 +833,10 @@ export class CryptoService extends EventEmitter {
     // 移除空行
     manifestContent = manifestContent.replace(/^\s*\n/gm, '');
     
-    console.log('清理后的manifest内容:', manifestContent.substring(0, 200) + '...');
+    console.log('Cleaned manifest content:', manifestContent.substring(0, 200) + '...');
     
     const manifest: Manifest = JSON.parse(manifestContent);
-    console.log('成功解析manifest.json，UUID:', manifest.header.uuid);
+    console.log('Successfully parsed manifest.json, UUID:', manifest.header.uuid);
     return manifest.header.uuid;
   }
 

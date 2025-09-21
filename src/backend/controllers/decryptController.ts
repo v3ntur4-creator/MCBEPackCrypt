@@ -21,7 +21,7 @@ export class DecryptController {
       if (!files || !files.encryptedFile || !files.keyFile) {
         res.status(400).json({ 
           success: false, 
-          message: '请同时上传加密文件(.zip)和密钥文件(.key)' 
+          message: 'Please upload both encrypted file (.zip) and key file (.key)' 
         });
         return;
       }
@@ -51,14 +51,14 @@ export class DecryptController {
       let encryptionKey: string;
       if (keyContent.length === 32) {
         // 32字符字母数字密钥格式
-        console.log('检测到32字符字母数字密钥格式');
+        console.log('Detected 32-character alphanumeric key format');
         encryptionKey = keyContent;
-        console.log('密钥验证通过，长度:', encryptionKey.length, '字符');
+        console.log('Key validation passed, length:', encryptionKey.length, 'characters');
       } else {
-        console.log('密钥长度验证失败，期望32字符，实际:', keyContent.length);
+        console.log('Key length validation failed, expected 32 characters, actual:', keyContent.length);
         res.status(400).json({
           success: false,
-          message: `无效的密钥文件，密钥长度必须为32字符，当前长度: ${keyContent.length}`
+          message: `Invalid key file, key length must be 32 characters, current length: ${keyContent.length}`
         });
         return;
       }
@@ -112,7 +112,7 @@ export class DecryptController {
 
       res.json({
         success: true,
-        message: '资源包解密成功',
+        message: 'Resource pack decrypted successfully',
         data: {
           downloadId,
           downloadUrl: `/api/download/${downloadId}`,
@@ -132,12 +132,12 @@ export class DecryptController {
         CleanupService.safeDeleteFile(outputFile, 'decrypted output file');
       }
 
-      let errorMessage = '解密过程中发生错误';
+      let errorMessage = 'Error occurred during decryption';
       if (error instanceof Error) {
         if (error.message.includes('Cannot find contents.json')) {
-          errorMessage = '文件不是有效的加密资源包';
+          errorMessage = 'File is not a valid encrypted resource pack';
         } else if (error.message.includes('Invalid key')) {
-          errorMessage = '密钥错误或文件损坏';
+          errorMessage = 'Invalid key or corrupted file';
         } else {
           errorMessage = error.message;
         }
@@ -146,7 +146,7 @@ export class DecryptController {
       res.status(500).json({
         success: false,
         message: errorMessage,
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }
@@ -167,8 +167,8 @@ export class DecryptController {
         downloadLinks: stats,
         progress: progress,
         requiredFiles: {
-          encryptedFile: '.zip (加密后的资源包)',
-          keyFile: '.key (32字符密钥文件)'
+          encryptedFile: '.zip (encrypted resource pack)',
+          keyFile: '.key (32-character key file)'
         },
         maxFileSize: '100MB'
       }

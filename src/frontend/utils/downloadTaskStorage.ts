@@ -32,7 +32,7 @@ export const saveDownloadTask = (task: Omit<DownloadTask, 'id' | 'createdAt' | '
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(downloadTask));
   } catch (error) {
-    console.error('保存下载任务失败:', error);
+    console.error('Failed to save download task:', error);
   }
 };
 
@@ -57,7 +57,7 @@ export const getDownloadTask = (): DownloadTask | null => {
     
     return task;
   } catch (error) {
-    console.error('获取下载任务失败:', error);
+    console.error('Failed to get download task:', error);
     clearDownloadTask();
     return null;
   }
@@ -70,7 +70,7 @@ export const clearDownloadTask = (): void => {
   try {
     sessionStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error('清除下载任务失败:', error);
+    console.error('Failed to clear download task:', error);
   }
 };
 
@@ -105,6 +105,6 @@ export const startDownload = (downloadUrl: string): void => {
     // 下载后清除任务
     clearDownloadTask();
   } catch (error) {
-    console.error('开始下载失败:', error);
+    console.error('Failed to start download:', error);
   }
 };

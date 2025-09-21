@@ -29,7 +29,7 @@ export class WorkerPool {
       : Math.min(cpuCount, 8); // 开发环境：使用更多Worker便于调试
     
     this.maxWorkers = maxWorkers || defaultWorkers;
-    console.log(`初始化Worker线程池，CPU核心数: ${cpuCount}，最大工作线程数: ${this.maxWorkers}`);
+    console.log(`Initializing Worker thread pool, CPU cores: ${cpuCount}, max workers: ${this.maxWorkers}`);
   }
 
   private createWorker(): PoolWorker {
@@ -37,30 +37,30 @@ export class WorkerPool {
     const isDevelopment = process.env.NODE_ENV !== 'production';
     let worker: Worker;
     
-    console.log(`正在创建Worker，开发环境: ${isDevelopment}`);
+    console.log(`Creating Worker, development environment: ${isDevelopment}`);
     
     if (isDevelopment) {
       // 开发环境：使用 ts-node 运行 TypeScript 文件
       const workerPath = path.join(__dirname, '../workers/cryptoWorker.ts');
-      console.log(`尝试创建Worker，路径: ${workerPath}`);
+      console.log(`Attempting to create Worker, path: ${workerPath}`);
       try {
         worker = new Worker(workerPath, {
           execArgv: ['--require', 'ts-node/register']
         });
-        console.log('Worker创建成功（使用ts-node）');
+        console.log('Worker created successfully (using ts-node)');
       } catch (error) {
-        console.error('使用ts-node创建Worker失败:', error);
+        console.error('Failed to create Worker using ts-node:', error);
         throw error;
       }
     } else {
       // 生产环境：使用编译后的 JavaScript 文件
       const workerPath = path.join(__dirname, '../workers/cryptoWorker.js');
-      console.log(`尝试创建Worker，路径: ${workerPath}`);
+      console.log(`Attempting to create Worker, path: ${workerPath}`);
       try {
         worker = new Worker(workerPath);
-        console.log('Worker创建成功（使用JavaScript）');
+        console.log('Worker created successfully (using JavaScript)');
       } catch (error) {
-        console.error('创建Worker失败:', error);
+        console.error('Failed to create Worker:', error);
         throw error;
       }
     }
@@ -78,13 +78,13 @@ export class WorkerPool {
     // 只监听exit事件，其他事件在任务执行时动态处理
     worker.on('exit', (code) => {
       if (code !== 0) {
-        console.error(`Worker ${workerId} 异常退出，退出码: ${code}`);
+        console.error(`Worker ${workerId} exited abnormally, exit code: ${code}`);
       }
       this.removeWorker(poolWorker);
     });
 
     this.workers.push(poolWorker);
-    console.log(`创建Worker线程 ${workerId}，当前线程池大小: ${this.workers.length}`);
+    console.log(`Created Worker thread ${workerId}, current pool size: ${this.workers.length}`);
     return poolWorker;
   }
 
@@ -92,7 +92,7 @@ export class WorkerPool {
     const index = this.workers.indexOf(poolWorker);
     if (index > -1) {
       this.workers.splice(index, 1);
-      console.log(`移除Worker线程 ${poolWorker.id}，当前线程池大小: ${this.workers.length}`);
+      console.log(`Removed Worker thread ${poolWorker.id}, current pool size: ${this.workers.length}`);
     }
   }
 
@@ -149,7 +149,7 @@ export class WorkerPool {
           if (isResolved) return;
           isResolved = true;
           cleanup();
-          console.error(`Worker ${availableWorker.id} 任务执行错误:`, error);
+          console.error(`Worker ${availableWorker.id} task execution error:`, error);
           reject(error);
         };
 
@@ -158,7 +158,7 @@ export class WorkerPool {
           if (isResolved) return;
           isResolved = true;
           cleanup();
-          console.error(`Worker ${availableWorker.id} 任务执行超时`);
+          console.error(`Worker ${availableWorker.id} task execution timeout`);
           reject(new Error('Worker task timeout'));
         }, 30000);
 
@@ -203,14 +203,14 @@ export class WorkerPool {
   }
 
   public async executeBatch(tasks: WorkerTask[]): Promise<WorkerResult[]> {
-    console.log(`开始批量处理 ${tasks.length} 个任务`);
+    console.log(`Starting batch processing of ${tasks.length} tasks`);
     const startTime = Date.now();
     
     const promises = tasks.map(task => this.executeTask(task));
     const results = await Promise.all(promises);
     
     const endTime = Date.now();
-    console.log(`批量处理完成，耗时: ${endTime - startTime}ms，平均每个任务: ${(endTime - startTime) / tasks.length}ms`);
+    console.log(`Batch processing completed, time taken: ${endTime - startTime}ms, average per task: ${(endTime - startTime) / tasks.length}ms`);
     
     return results;
   }
@@ -225,7 +225,7 @@ export class WorkerPool {
   }
 
   public async terminate(): Promise<void> {
-    console.log('正在关闭Worker线程池...');
+    console.log('Shutting down Worker thread pool...');
     const terminationPromises = this.workers.map(poolWorker => 
       poolWorker.worker.terminate()
     );
@@ -233,7 +233,7 @@ export class WorkerPool {
     await Promise.all(terminationPromises);
     this.workers = [];
     this.taskQueue = [];
-    console.log('Worker线程池已关闭');
+    console.log('Worker thread pool has been shut down');
   }
 }
 
@@ -242,12 +242,12 @@ let globalWorkerPool: WorkerPool | null = null;
 
 export function getWorkerPool(): WorkerPool {
   if (!globalWorkerPool) {
-    console.log('正在初始化全局Worker线程池...');
+    console.log('Initializing global Worker thread pool...');
     try {
       globalWorkerPool = new WorkerPool();
-      console.log('全局Worker线程池初始化成功');
+      console.log('Global Worker thread pool initialized successfully');
     } catch (error) {
-      console.error('Worker线程池初始化失败:', error);
+      console.error('Worker thread pool initialization failed:', error);
       throw error;
     }
   }
