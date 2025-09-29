@@ -34,7 +34,7 @@ app.use('/temp', express.static(path.join(process.cwd(), 'temp')));
 
 // 在生产环境中提供前端静态文件
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(process.cwd(), 'dist/frontend')));
+  app.use(express.static(path.join(process.cwd(), 'dist')));
 }
 
 // API路由
@@ -46,7 +46,7 @@ app.use('/api/download', downloadRouter);
 // 根路径处理
 app.get('/', (req, res) => {
   if (process.env.NODE_ENV === 'production') {
-    res.sendFile(path.join(process.cwd(), 'dist/frontend/index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist/index.html'));
   } else {
     res.redirect('/api/health');
   }
@@ -71,7 +71,7 @@ app.use('*', (req, res) => {
     });
   } else if (process.env.NODE_ENV === 'production') {
     // 生产环境中，所有非API请求都返回前端应用
-    res.sendFile(path.join(process.cwd(), 'dist/frontend/index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist/index.html'));
   } else {
     // 开发环境中，返回404
     res.status(404).json({ message: 'Page not found' });
