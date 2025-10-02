@@ -4,7 +4,10 @@ import { UploadOutlined, LockOutlined, UnlockOutlined, SafetyOutlined, KeyOutlin
 import { useTranslation } from 'react-i18next';
 import ErrorModal from '../components/ErrorModal';
 import DownloadTaskModal from '../components/DownloadTaskModal';
+import LocalComputeModal from '../components/LocalComputeModal';
 import { saveDownloadTask, getDownloadTask, clearDownloadTask, startDownload } from '../utils/downloadTaskStorage';
+import { cryptoServiceAdapter } from '../services/cryptoServiceAdapter';
+import { deploymentModeDetector } from '../utils/deploymentMode';
 
 const { Dragger } = Upload;
 
@@ -34,6 +37,13 @@ const HomePage: React.FC = () => {
   // 下载任务提醒状态
   const [downloadTaskModalVisible, setDownloadTaskModalVisible] = useState(false);
   const [pendingDownloadTask, setPendingDownloadTask] = useState<any>(null);
+  
+  // 部署模式状态
+  const [deploymentMode, setDeploymentMode] = useState<string>('');
+  const [modeDescription, setModeDescription] = useState<string>('');
+  
+  // 本地计算弹窗状态
+  const [localComputeModalVisible, setLocalComputeModalVisible] = useState(false);
 
   // 检查是否有未完成的下载任务
   useEffect(() => {
@@ -45,8 +55,27 @@ const HomePage: React.FC = () => {
       }
     };
 
-    // 页面加载时检查
+    // 检测部署模式
+    const detectMode = async () => {
+      const mode = await deploymentModeDetector.detectDeploymentMode();
+      const description = await deploymentModeDetector.getModeDescription();
+      setDeploymentMode(mode.mode);
+      setModeDescription(description);
+
+      // 检查是否需要显示本地计算说明弹窗
+      if (mode.mode === 'frontend-only') {
+        const hasShownNotice = localStorage.getItem('localComputeNoticeShown');
+        if (!hasShownNotice) {
+          setLocalComputeModalVisible(true);
+        }
+      }
+    };
+
+    detectMode();
+
+    // 页面加载时检查下载任务
     checkPendingTask();
+    
   }, []);
 
   // 检查下载任务的函数
@@ -142,36 +171,24 @@ const HomePage: React.FC = () => {
       setEncryptLoading(true);
       setEncryptProgress({ current: 0, total: 100, status: 'starting' });
       
-      // 开始轮询进度
-      setTimeout(() => pollProgress('encrypt'), 1000);
+      // 使用加密服务适配器
+      const result = await cryptoServiceAdapter.encryptFile(
+        encryptFile,
+        (progress) => {
+          setEncryptProgress(progress);
+        }
+      );
       
-      const formData = new FormData();
-      formData.append('file', encryptFile);
-      
-      const response = await fetch('/api/encrypt', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t('encrypt.progress.error'));
-      }
-      
-      // 获取响应数据
-      const result = await response.json();
-      
-      setEncryptProgress({ current: 100, total: 100, status: 'completed' });
       setSuccessData(result.data);
       setOperationType('encrypt');
       
-      // 保存下载任务到会话存储
+      // 保存下载任务到会话存储（仅在服务器端模式下）
       if (result.data?.downloadUrl) {
         saveDownloadTask({
           downloadUrl: result.data.downloadUrl,
           operationType: 'encrypt',
           files: result.data.files,
-          expiresIn: result.data.expiresIn
+          expiresIn: result.data.expiresIn || '5 minutes'
         });
       }
       
@@ -203,43 +220,30 @@ const HomePage: React.FC = () => {
       setDecryptLoading(true);
       setDecryptProgress({ current: 0, total: 100, status: 'starting' });
       
-      // 开始轮询进度
-      setTimeout(() => pollProgress('decrypt'), 1000);
-      
-      const formData = new FormData();
-      formData.append('encryptedFile', encryptedFile);
-      formData.append('keyFile', keyFile);
-      
       // 获取表单值
       const formValues = decryptForm.getFieldsValue();
-      if (formValues.preserveContentsJson) {
-        formData.append('preserveContentsJson', 'true');
-      }
+      const preserveContentsJson = formValues.preserveContentsJson || false;
       
-      const response = await fetch('/api/decrypt', {
-        method: 'POST',
-        body: formData,
-      });
+      // 使用解密服务适配器
+      const result = await cryptoServiceAdapter.decryptFile(
+        encryptedFile,
+        keyFile,
+        preserveContentsJson,
+        (progress) => {
+          setDecryptProgress(progress);
+        }
+      );
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t('decrypt.progress.error'));
-      }
-      
-      // 获取响应数据
-      const result = await response.json();
-      
-      setDecryptProgress({ current: 100, total: 100, status: 'completed' });
       setSuccessData(result.data);
       setOperationType('decrypt');
       
-      // 保存下载任务到会话存储
+      // 保存下载任务到会话存储（仅在服务器端模式下）
       if (result.data?.downloadUrl) {
         saveDownloadTask({
           downloadUrl: result.data.downloadUrl,
           operationType: 'decrypt',
           files: result.data.files,
-          expiresIn: result.data.expiresIn
+          expiresIn: result.data.expiresIn || "5min"
         });
       }
       
@@ -636,8 +640,14 @@ const HomePage: React.FC = () => {
                 if (successData?.downloadUrl) {
                   startDownload(successData.downloadUrl);
                   clearDownloadTask(); // 清除会话存储中的下载任务
+                } else {
+                  // frontend-only模式下，文件已经自动下载，只需关闭弹窗
+                  message.success(deploymentMode === 'frontend-only' ? 'File automatically downloaded to browser' : t('result.downloadStarted'));
+                  setSuccessModalVisible(false);
+                  setSuccessData(null);
                 }
               }}
+              style={{ display: successData?.downloadUrl ? 'inline-block' : 'none' }}
             >
               {t('result.download')}
             </Button>,
@@ -650,7 +660,7 @@ const HomePage: React.FC = () => {
             subTitle={
               <div>
                 <p>{operationType === 'encrypt' ? t('result.encryptMessage') : t('result.decryptMessage')}</p>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('result.expireMessage', { time: successData?.expiresIn || '5分钟' })}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('result.expireMessage', { time: successData?.expiresIn || '5 minutes' })}</p>
               </div>
             }
           />
@@ -694,6 +704,12 @@ const HomePage: React.FC = () => {
           onClose={handleDownloadTaskModalClose}
           onDownload={handleDownloadTaskDownload}
           onDiscard={handleDownloadTaskDiscard}
+        />
+        
+        {/* 本地计算说明弹窗 */}
+        <LocalComputeModal
+          visible={localComputeModalVisible}
+          onClose={() => setLocalComputeModalVisible(false)}
         />
       </div>
     );

@@ -112,11 +112,34 @@ This project uses **AES-256-CFB8** encryption algorithm with the following chara
    ```
 
 2. **Run Container**
+
+   **Full-Stack Mode (Default)**
    ```bash
    docker run -d -p 3000:3000 --name MCBEPackCrypt-app docker.cnb.cool/enderrealm/public/MCBEPackCrypt
    ```
 
-3. **Custom Configuration**
+   **Pure Frontend Mode**
+   ```bash
+   docker run -d -p 3000:3000 -e DEPLOYMENT_MODE=frontend-only --name MCBEPackCrypt-frontend docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+   ```
+
+3. **Deployment Modes**
+
+   This application supports two deployment modes:
+
+   - **Full-Stack Mode** (`DEPLOYMENT_MODE=fullstack`, default)
+     - Complete backend API services
+     - Server-side encryption/decryption processing
+     - File upload and download management
+     - Suitable for production environments with high security requirements
+
+   - **Pure Frontend Mode** (`DEPLOYMENT_MODE=frontend-only`)
+     - Client-side encryption/decryption using Web Crypto API
+     - No file upload to server, all processing in browser
+     - Enhanced privacy protection
+     - Suitable for scenarios requiring maximum data privacy
+
+4. **Custom Configuration**
    
    You can modify the following parameters as needed:
    
@@ -131,14 +154,23 @@ This project uses **AES-256-CFB8** encryption algorithm with the following chara
      # Example: Use custom name
      docker run -d -p 3000:3000 --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
      ```
+
+   - **Environment Variables**: `-e VARIABLE=value`
+     ```bash
+     # Frontend-only mode with custom port
+     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+     ```
    
    - **Complete Custom Example**:
      ```bash
-     docker run -d -p 8080:3000 --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
      ```
 
 4. **Access Application**
-   - Application Interface: http://localhost:3000 (or your custom port)
+   - **Full-Stack Mode**: http://localhost:3000 (or your custom port)
+   - **Pure Frontend Mode**: http://localhost:3000 (or your custom port)
+   
+   You can check the current deployment mode by visiting: http://localhost:3000/api/health
 
 #### Method 2: Source Code Deployment
 
@@ -154,20 +186,28 @@ This project uses **AES-256-CFB8** encryption algorithm with the following chara
 
 ## 📋 API Endpoints
 
-### Health Check
-- `GET /api/health` - Service status check
+**Note**: API availability depends on the deployment mode.
 
-### Encryption Service
+### Health Check (Available in all modes)
+- `GET /api/health` - Service status check and deployment mode information
+
+### Full-Stack Mode APIs
+The following APIs are only available when `DEPLOYMENT_MODE=fullstack`:
+
+#### Encryption Service
 - `POST /api/encrypt` - Upload and encrypt resource pack
 - `GET /api/encrypt/status` - Get encryption service status
 
-### Decryption Service
+#### Decryption Service
 - `POST /api/decrypt` - Upload encrypted file and key for decryption
 - `GET /api/decrypt/status` - Get decryption service status
 
-### Download Service
+#### Download Service
 - `GET /api/download/:id` - Download processed file
 - `GET /api/download/stats` - Get download statistics
+
+### Pure Frontend Mode
+When `DEPLOYMENT_MODE=frontend-only`, encryption and decryption are performed entirely in the browser using the Web Crypto API. No backend processing APIs are available.
 
 ## 📝 Usage Instructions
 

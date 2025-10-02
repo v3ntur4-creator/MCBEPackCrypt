@@ -25,7 +25,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ visible, onClose, error }) => {
       await navigator.clipboard.writeText(error.stack || error.message);
       message.success(t('errorModal.stackTrace.copied'));
     } catch (err) {
-      message.error('复制失败');
+      message.error('Copy failed');
     } finally {
       setCopyLoading(false);
     }

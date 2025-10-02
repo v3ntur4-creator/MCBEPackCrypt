@@ -172,5 +172,27 @@
     "note": "(Note: Please copy the complete error stack below, not a screenshot of this window, for more accurate problem diagnosis)",
     "close": "Close",
     "issuePage": "Issue Page"
+  },
+  "localCompute": {
+    "title": "Local Computation Notice",
+    "understood": "I Understand",
+    "aboutComputation": "About Computation Method",
+    "computationDescription": "All encryption and decryption computations of this tool will be completed on your local device, which means:",
+    "localPower": "Local Computing Power: The encryption process will use your device's CPU for computation",
+    "filesStayLocal": "Files Stay Local: Your files will not be uploaded to any server",
+    "completePrivacy": "Complete Privacy Protection: We cannot access, view, or store any of your file data",
+    "performanceTitle": "Performance Tips",
+    "performanceDescription": "When processing larger files, you may notice:",
+    "cpuUsage": "Temporarily increased CPU usage",
+    "browserDelay": "Slight browser response delay",
+    "fanSpeed": "Accelerated fan operation",
+    "normalBehavior": "These are all normal phenomena, indicating that your device is securely processing encryption tasks.",
+    "privacyTitle": "Privacy Guarantee",
+    "privacyGuarantee": "Your privacy is 100% secure:",
+    "browserProcessing": "All files are processed only in your browser",
+    "keyGeneration": "Encryption keys are generated and retained by your device",
+    "noAccess": "We have no way to access your original files",
+    "noCloudRecord": "No cloud records are left after processing is complete",
+    "tip": "Tip: Keep the browser tab active during processing for optimal performance"
   }
 }

@@ -112,11 +112,34 @@ MCBEPackCrypt 是一个专为 Minecraft 基岩版（Bedrock Edition）设计的�
    ```
 
 2. **运行容器**
+
+   **全栈模式（默认）**
    ```bash
    docker run -d -p 3000:3000 --name MCBEPackCrypt-app docker.cnb.cool/enderrealm/public/MCBEPackCrypt
    ```
 
-3. **自定义配置**
+   **纯前端模式**
+   ```bash
+   docker run -d -p 3000:3000 -e DEPLOYMENT_MODE=frontend-only --name MCBEPackCrypt-frontend docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+   ```
+
+3. **部署模式**
+
+   本应用支持两种部署模式：
+
+   - **全栈模式** (`DEPLOYMENT_MODE=fullstack`，默认)
+     - 完整的后端API服务
+     - 服务端加密/解密处理
+     - 文件上传和下载管理
+     - 适用于对安全性要求较高的生产环境
+
+   - **纯前端模式** (`DEPLOYMENT_MODE=frontend-only`)
+     - 使用Web Crypto API进行客户端加密/解密
+     - 文件不上传到服务器，全部在浏览器中处理
+     - 增强隐私保护
+     - 适用于对数据隐私要求极高的场景
+
+4. **自定义配置**
    
    您可以根据需要修改以下参数：
    
@@ -131,14 +154,23 @@ MCBEPackCrypt 是一个专为 Minecraft 基岩版（Bedrock Edition）设计的�
      # 例如：使用自定义名称
      docker run -d -p 3000:3000 --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
      ```
+
+   - **环境变量**：`-e 变量名=值`
+     ```bash
+     # 纯前端模式 + 自定义端口
+     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+     ```
    
    - **完整自定义示例**：
      ```bash
-     docker run -d -p 8080:3000 --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
+     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
      ```
 
 4. **访问应用**
-   - 应用界面：http://localhost:3000 （或您自定义的端口）
+   - **全栈模式**：http://localhost:3000 （或您自定义的端口）
+   - **纯前端模式**：http://localhost:3000 （或您自定义的端口）
+   
+   您可以通过访问 http://localhost:3000/api/health 来检查当前的部署模式
 
 #### 方式二：源码部署
 
@@ -154,20 +186,28 @@ MCBEPackCrypt 是一个专为 Minecraft 基岩版（Bedrock Edition）设计的�
 
 ## 📋 API 接口
 
-### 健康检查
-- `GET /api/health` - 服务状态检查
+**注意**：API可用性取决于部署模式。
 
-### 加密服务
+### 健康检查（所有模式可用）
+- `GET /api/health` - 服务状态检查和部署模式信息
+
+### 全栈模式API
+以下API仅在 `DEPLOYMENT_MODE=fullstack` 时可用：
+
+#### 加密服务
 - `POST /api/encrypt` - 上传并加密资源包
 - `GET /api/encrypt/status` - 获取加密服务状态
 
-### 解密服务
+#### 解密服务
 - `POST /api/decrypt` - 上传加密文件和密钥进行解密
 - `GET /api/decrypt/status` - 获取解密服务状态
 
-### 下载服务
+#### 下载服务
 - `GET /api/download/:id` - 下载处理后的文件
 - `GET /api/download/stats` - 获取下载统计信息
+
+### 纯前端模式
+当 `DEPLOYMENT_MODE=frontend-only` 时，加密和解密完全在浏览器中使用Web Crypto API执行。不提供后端处理API。
 
 ## 📝 使用说明
 

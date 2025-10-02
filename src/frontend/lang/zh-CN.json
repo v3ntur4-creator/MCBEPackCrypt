@@ -172,5 +172,27 @@
     "note": "（请注意：需复制下方完整的报错，而非截图此窗口，以便更精准定位问题）",
     "close": "关闭",
     "issuePage": "Issue页面"
+  },
+  "localCompute": {
+    "title": "本地计算说明",
+    "understood": "我已了解",
+    "aboutComputation": "关于计算方式",
+    "computationDescription": "本工具的所有加密和解密计算都将在您的本地设备上完成，这意味着：",
+    "localPower": "调用本地算力：加密过程会使用您设备的CPU进行计算",
+    "filesStayLocal": "文件不离本地：您的文件不会上传到任何服务器",
+    "completePrivacy": "完全隐私保护：我们无法获取、查看或存储您的任何文件数据",
+    "performanceTitle": "性能提示",
+    "performanceDescription": "处理较大文件时，您可能会注意到：",
+    "cpuUsage": "CPU使用率暂时升高",
+    "browserDelay": "浏览器响应稍有延迟",
+    "fanSpeed": "风扇加速运转",
+    "normalBehavior": "这些都是正常现象，表明您的设备正在安全地处理加密任务。",
+    "privacyTitle": "隐私保证",
+    "privacyGuarantee": "您的隐私100%安全：",
+    "browserProcessing": "所有文件仅在您的浏览器中处理",
+    "keyGeneration": "加密密钥由您的设备生成并保留",
+    "noAccess": "我们没有任何途径获取您的原始文件",
+    "noCloudRecord": "处理完成后不会留下任何云端记录",
+    "tip": "提示：处理过程中请保持浏览器标签页激活，以获得最佳性能"
   }
 }
