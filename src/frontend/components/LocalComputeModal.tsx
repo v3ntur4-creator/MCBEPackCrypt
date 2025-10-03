@@ -106,8 +106,8 @@ const LocalComputeModal: React.FC<LocalComputeModalProps> = ({ visible, onClose 
         <Divider />
 
         <div style={{ 
-          backgroundColor: '#f6ffed', 
-          border: '1px solid #b7eb8f', 
+          backgroundColor: 'var(--success-bg, #f6ffed)', 
+          border: '1px solid var(--success-border, #b7eb8f)', 
           borderRadius: 6, 
           padding: 12,
           display: 'flex',

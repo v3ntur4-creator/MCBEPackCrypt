@@ -10,6 +10,8 @@
   --card-bg: #ffffff;
   --input-bg: #ffffff;
   --hover-bg: #f0f0f0;
+  --success-bg: #f6ffed;
+  --success-border: #b7eb8f;
 }
 
 /* 深色主题变量 */
@@ -23,6 +25,8 @@
   --card-bg: #1f1f1f;
   --input-bg: #262626;
   --hover-bg: #2a2a2a;
+  --success-bg: #162312;
+  --success-border: #274916;
 }
 
 /* 全局样式 */
