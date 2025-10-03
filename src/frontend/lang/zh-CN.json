@@ -62,6 +62,22 @@
       "completed": "加密完成！",
       "error": "加密失败"
     },
+    "logs": {
+      "starting_encryption": "开始加密过程...",
+      "analyzing_zip_file": "正在分析文件，共 {{count}} 个条目",
+      "found_pack_uuid": "发现资源包UUID: {{uuid}}",
+      "processing_directories": "正在处理目录结构...",
+      "preparing_file_encryption": "正在准备文件加密，共 {{count}} 个文件需要加密",
+      "encrypting_file": "正在加密文件: {{filename}}",
+      "file_encrypted_success": "文件加密成功: {{filename}}",
+      "file_encrypted_error": "文件加密失败: {{filename}} - {{error}}",
+      "excluded_file_copied": "排除文件已复制: {{filename}}",
+      "generating_contents_json": "正在生成 contents.json 配置文件...",
+      "finalizing_zip": "正在完成ZIP文件打包...",
+      "encryption_completed": "加密过程完成！",
+      "parallel_encryption_start": "开始并行加密 {{count}} 个文件...",
+      "parallel_encryption_complete": "并行加密完成"
+    },
     "result": {
       "success": "资源包加密成功！",
       "description": "您的文件已成功加密，请点击下方按钮下载文件。",
@@ -70,6 +86,22 @@
         "key": "密钥文件"
       },
       "warning": "⚠️ 请妥善保管密钥文件，丢失后将无法解密！"
+    },
+    "details": {
+      "title": "详细信息"
+    },
+    "detailedLogs": {
+      "starting": "开始加密过程...",
+      "foundUuid": "发现资源包UUID: {{uuid}}",
+      "analyzingZip": "正在分析ZIP文件，共 {{count}} 个条目",
+      "processingDirectories": "正在处理目录结构...",
+      "preparingEncryption": "正在准备文件加密，共 {{count}} 个文件需要加密",
+      "encryptingFile": "正在加密文件: {{fileName}}",
+      "fileEncryptedSuccess": "文件加密成功: {{fileName}}",
+      "generatingContents": "正在生成 contents.json 配置文件...",
+      "completingZip": "正在完成ZIP文件打包...",
+      "encryptionCompleted": "加密过程完成！",
+      "encryptionFailed": "加密失败: {{error}}"
     }
   },
   "decrypt": {
@@ -109,9 +141,39 @@
       "completed": "解密完成！",
       "error": "解密失败"
     },
-    "result": {
-      "success": "资源包解密成功！",
-      "description": "您的文件已成功解密，请点击下方按钮下载文件。"
+    "logs": {
+      "starting_decryption": "开始解密过程...",
+      "reading_zip_entries": "正在读取ZIP文件条目，共 {{count}} 个条目",
+      "decrypting_contents_json": "正在解密 contents.json 配置文件...",
+      "preparing_file_decryption": "正在准备文件解密，共 {{count}} 个文件需要解密",
+      "decrypting_file": "正在解密文件: {{filename}}",
+      "file_decrypted_success": "文件解密成功: {{filename}}",
+      "file_decrypted_error": "文件解密失败: {{filename}} - {{error}}",
+      "processing_decrypted_results": "正在处理解密结果...",
+      "copying_excluded_files": "正在复制排除文件...",
+      "excluded_file_copied": "排除文件已复制: {{filename}}",
+      "decryption_completed": "解密过程完成！",
+      "parallel_decryption_start": "开始并行解密 {{count}} 个文件...",
+      "parallel_decryption_complete": "并行解密完成"
+    },
+    "details": {
+      "title": "详细信息"
+    },
+    "detailedLogs": {
+      "starting": "开始解密过程...",
+      "readingKey": "正在读取密钥文件...",
+      "keyValidated": "密钥文件验证成功",
+      "readingZip": "正在读取加密的ZIP文件...",
+      "decryptingContents": "正在解密 contents.json 配置文件...",
+      "contentsDecrypted": "contents.json 解密成功，共 {{count}} 个文件条目",
+      "preparingDecryption": "正在准备文件解密...",
+      "decryptingFile": "正在解密文件: {{fileName}}",
+      "fileDecryptedSuccess": "文件解密成功: {{fileName}}",
+      "preservingContents": "正在保留 contents.json 文件",
+      "completingZip": "正在完成ZIP文件打包...",
+      "decryptionCompleted": "解密过程完成！",
+      "decryptionFailed": "解密失败: {{error}}"
+      
     }
   },
   "result": {
@@ -120,13 +182,16 @@
     "decryptSuccess": "解密完成！",
     "decryptMessage": "您的文件已成功解密，请点击下方按钮下载文件。",
     "expireMessage": "下载链接将在 {{time}} 后过期",
+    "browserDownloadMessage": "浏览器已自动启动下载任务",
     "download": "下载文件",
     "fileInfo": "文件信息：",
     "encryptedFile": "加密文件",
     "keyFile": "密钥文件",
     "decryptedFile": "解密文件",
     "keyWarning": "请妥善保管密钥文件，丢失后将无法解密！",
-    "decryptComplete": "文件已成功解密，可以正常使用"
+    "decryptComplete": "文件已成功解密，可以正常使用",
+    "success": "资源包解密成功！",
+      "description": "您的文件已成功解密，请点击下方按钮下载文件。"
   },
   "settings": {
       "title": "设置",

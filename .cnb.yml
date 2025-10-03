@@ -40,5 +40,20 @@ main:
             docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
             docker push ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:${CNB_COMMIT_SHORT}
             echo "镜像推送完成！"
-
+preview:
+  push:
+    # 从私有仓库导入环境变量：
+    # 参考：https://docs.cnb.cool/en/build/env.html#importing-environment-variables
+    - imports: https://cnb.cool/EnderRealm/envs/-/blob/main/envs.yml
+      stages:
+        # 构建当前项目
+        - name: Build Current Project
+          image: node:22
+          script: node -v && npm install && npm run build
+        # 将构建输出部署到 EdgeOne Pages
+        # ./dist 目录由前一步构建步骤生成
+        # 参考：https://www.npmjs.com/package/edgeone
+        - name: Deploy to EdgeOne Pages
+          image: node:22
+          script: npx edgeone pages deploy ./dist -n mcbepackcrypt-preview -e preview -t $EDGEONE_API_TOKEN
 # 更多资料见 https://docs.cnb.cool/build/quick-start.html

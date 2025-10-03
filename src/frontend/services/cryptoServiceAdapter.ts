@@ -27,6 +27,10 @@ export interface ProgressCallback {
   (progress: CryptoProgress): void;
 }
 
+export interface DetailedLogCallback {
+  (log: string): void;
+}
+
 /**
  * 加密服务适配器类
  */
@@ -47,12 +51,13 @@ class CryptoServiceAdapter {
    */
   async encryptFile(
     file: File,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
+    onDetailedLog?: DetailedLogCallback
   ): Promise<CryptoResult> {
     const isFrontendOnly = await deploymentModeDetector.isFrontendOnlyMode();
     
     if (isFrontendOnly) {
-      return this.encryptFileClientSide(file, onProgress);
+      return this.encryptFileClientSide(file, onProgress, onDetailedLog);
     } else {
       return this.encryptFileServerSide(file, onProgress);
     }
@@ -65,12 +70,13 @@ class CryptoServiceAdapter {
     encryptedFile: File,
     keyFile: File,
     preserveContentsJson: boolean = false,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
+    onDetailedLog?: DetailedLogCallback
   ): Promise<CryptoResult> {
     const isFrontendOnly = await deploymentModeDetector.isFrontendOnlyMode();
     
     if (isFrontendOnly) {
-      return this.decryptFileClientSide(encryptedFile, keyFile, preserveContentsJson, onProgress);
+      return this.decryptFileClientSide(encryptedFile, keyFile, preserveContentsJson, onProgress, onDetailedLog);
     } else {
       return this.decryptFileServerSide(encryptedFile, keyFile, preserveContentsJson, onProgress);
     }
@@ -81,13 +87,14 @@ class CryptoServiceAdapter {
    */
   private async encryptFileClientSide(
     file: File,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
+    onDetailedLog?: DetailedLogCallback
   ): Promise<CryptoResult> {
     try {
       onProgress?.({ current: 0, total: 100, status: 'starting' });
 
-      // Use frontend encryption service
-      const frontendCryptoService = new FrontendCryptoService();
+      // Use frontend encryption service with detailed logging
+      const frontendCryptoService = new FrontendCryptoService(onDetailedLog);
       
       // Monitor progress
       const progressInterval = setInterval(() => {
@@ -161,13 +168,14 @@ class CryptoServiceAdapter {
     encryptedFile: File,
     keyFile: File,
     preserveContentsJson: boolean,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
+    onDetailedLog?: DetailedLogCallback
   ): Promise<CryptoResult> {
     try {
       onProgress?.({ current: 0, total: 100, status: 'starting' });
 
-      // 使用前端解密服务
-      const frontendCryptoService = new FrontendCryptoService();
+      // 使用前端解密服务，支持详细日志
+      const frontendCryptoService = new FrontendCryptoService(onDetailedLog);
       
       // Monitor progress
       const progressInterval = setInterval(() => {

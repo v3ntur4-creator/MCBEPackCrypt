@@ -62,6 +62,22 @@
       "completed": "Encryption completed!",
       "error": "Encryption failed"
     },
+    "logs": {
+      "starting_encryption": "Starting encryption process...",
+      "analyzing_zip_file": "Analyzing file, {{count}} entries found",
+      "found_pack_uuid": "Found resource pack UUID: {{uuid}}",
+      "processing_directories": "Processing directory structure...",
+      "preparing_file_encryption": "Preparing file encryption, {{count}} files to encrypt",
+      "encrypting_file": "Encrypting file: {{filename}}",
+      "file_encrypted_success": "File encrypted successfully: {{filename}}",
+      "file_encrypted_error": "File encryption failed: {{filename}} - {{error}}",
+      "excluded_file_copied": "Excluded file copied: {{filename}}",
+      "generating_contents_json": "Generating contents.json configuration file...",
+      "finalizing_zip": "Finalizing ZIP file packaging...",
+      "encryption_completed": "Encryption process completed!",
+      "parallel_encryption_start": "Starting parallel encryption of {{count}} files...",
+      "parallel_encryption_complete": "Parallel encryption completed"
+    },
     "result": {
       "success": "Resource pack encrypted successfully!",
       "description": "Your file has been successfully encrypted. Please click the buttons below to download the files.",
@@ -70,6 +86,22 @@
         "key": "Key File"
       },
       "warning": "⚠️ Please keep the key file safe. You cannot decrypt without it!"
+    },
+    "details": {
+      "title": "Details"
+    },
+    "detailedLogs": {
+      "starting": "Starting encryption process...",
+      "foundUuid": "Found resource pack UUID: {{uuid}}",
+      "analyzingZip": "Analyzing ZIP file, {{count}} entries found",
+      "processingDirectories": "Processing directory structure...",
+      "preparingEncryption": "Preparing file encryption, {{count}} files to encrypt",
+      "encryptingFile": "Encrypting file: {{fileName}}",
+      "fileEncryptedSuccess": "File encrypted successfully: {{fileName}}",
+      "generatingContents": "Generating contents.json configuration file...",
+      "completingZip": "Completing ZIP file packaging...",
+      "encryptionCompleted": "Encryption process completed!",
+      "encryptionFailed": "Encryption failed: {{error}}"
     }
   },
   "decrypt": {
@@ -109,9 +141,38 @@
       "completed": "Decryption completed!",
       "error": "Decryption failed"
     },
-    "result": {
-      "success": "Resource pack decrypted successfully!",
-      "description": "Your file has been successfully decrypted. Please click the button below to download the file."
+    "logs": {
+      "starting_decryption": "Starting decryption process...",
+      "reading_zip_entries": "Reading ZIP file entries, {{count}} entries found",
+      "decrypting_contents_json": "Decrypting contents.json configuration file...",
+      "preparing_file_decryption": "Preparing file decryption, {{count}} files to decrypt",
+      "decrypting_file": "Decrypting file: {{filename}}",
+      "file_decrypted_success": "File decrypted successfully: {{filename}}",
+      "file_decrypted_error": "File decryption failed: {{filename}} - {{error}}",
+      "processing_decrypted_results": "Processing decrypted results...",
+      "copying_excluded_files": "Copying excluded files...",
+      "excluded_file_copied": "Excluded file copied: {{filename}}",
+      "decryption_completed": "Decryption process completed!",
+      "parallel_decryption_start": "Starting parallel decryption of {{count}} files...",
+      "parallel_decryption_complete": "Parallel decryption completed"
+    },
+    "details": {
+      "title": "Details"
+    },
+    "detailedLogs": {
+      "starting": "Starting decryption process...",
+      "readingKey": "Reading key file...",
+      "keyValidated": "Key file validation successful",
+      "readingZip": "Reading encrypted ZIP file...",
+      "decryptingContents": "Decrypting contents.json configuration file...",
+      "contentsDecrypted": "contents.json decrypted successfully, {{count}} file entries found",
+      "preparingDecryption": "Preparing file decryption...",
+      "decryptingFile": "Decrypting file: {{fileName}}",
+      "fileDecryptedSuccess": "File decrypted successfully: {{fileName}}",
+      "preservingContents": "Preserving contents.json file",
+      "completingZip": "Completing ZIP file packaging...",
+      "decryptionCompleted": "Decryption process completed!",
+      "decryptionFailed": "Decryption failed: {{error}}"
     }
   },
   "result": {
@@ -120,22 +181,25 @@
     "decryptSuccess": "Decryption Completed!",
     "decryptMessage": "Your file has been successfully decrypted. Please click the button below to download the file.",
     "expireMessage": "Download link will expire in {{time}}",
+    "browserDownloadMessage": "Browser has automatically started the download task",
     "download": "Download File",
     "fileInfo": "File Info:",
     "encryptedFile": "Encrypted File",
     "keyFile": "Key File",
     "decryptedFile": "Decrypted File",
     "keyWarning": "Please keep the key file safe. You cannot decrypt without it!",
-    "decryptComplete": "File has been successfully decrypted and is ready to use"
+    "decryptComplete": "File has been successfully decrypted and is ready to use",
+    "success": "Resource pack decrypted successfully!",
+    "description": "Your file has been successfully decrypted. Please click the button below to download the file."
   },
   "settings": {
-      "title": "Settings",
-      "language": "Language",
-      "theme": "Theme",
-      "themeAuto": "Auto Detect",
-      "themeLight": "Light Mode",
-      "themeDark": "Dark Mode"
-    },
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeAuto": "Auto Detect",
+    "themeLight": "Light Mode",
+    "themeDark": "Dark Mode"
+  },
   "language": {
     "auto": "Auto Detect",
     "zh-CN": "简体中文",

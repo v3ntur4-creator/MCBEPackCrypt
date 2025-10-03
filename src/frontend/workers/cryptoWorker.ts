@@ -1,8 +1,8 @@
-// Frontend encryption/decryption Web Worker
-// Uses the same algorithm as backend: AES-256-CFB8, IV is the first 16 bytes of key
-// Implements streaming processing and CPU usage control
+// 前端加密/解密 Web Worker
+// 使用与后端相同的算法：AES-256-CFB8，IV是密钥的前16字节
+// 实现流式处理和CPU使用控制
 
-// Provide Buffer and process polyfill for Web Worker environment
+// 为Web Worker环境提供Buffer和process的polyfill
 import { Buffer } from 'buffer';
 (globalThis as any).Buffer = Buffer;
 (globalThis as any).process = {
@@ -15,15 +15,19 @@ import { Buffer } from 'buffer';
 
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto-browserify';
 
-// CPU control configuration
+// CPU控制配置
 const CPU_CONFIG = {
-  CHUNK_SIZE: 1024 * 1024, // 1MB chunk size, fully utilize CPU
+  CHUNK_SIZE: 1024 * 1024, // 1MB块大小，充分利用CPU
   BATCH_SIZE: 10,
-  YIELD_INTERVAL: 50, // Yield control every 50 chunks (reduced frequency)
-  MAX_CONCURRENT_CHUNKS: Math.max(navigator.hardwareConcurrency || 4, 4) // Use all available cores
+  YIELD_INTERVAL: 50, // 每50个块让出控制权
+  MAX_CONCURRENT_CHUNKS: Math.max(navigator.hardwareConcurrency || 4, 4), // 使用所有可用核心
+  // CPU速率限制配置（用于测试）
+  THROTTLE_ENABLED: false, // 是否启用CPU限制
+  THROTTLE_DELAY: 400, // 每个块处理后的延迟（毫秒）
+  THROTTLE_CHUNK_INTERVAL: 1 // 每处理几个块后进行延迟
 };
 
-// Progress reporting interface
+// 进度报告接口
 export interface ProgressReport {
   stage: string;
   percentage: number;
@@ -31,7 +35,7 @@ export interface ProgressReport {
   totalBytes: number;
 }
 
-// Work message types
+// 工作消息类型
 export interface WorkerMessage {
   type: 'encrypt' | 'decrypt';
   data: {
@@ -43,7 +47,7 @@ export interface WorkerMessage {
   id: string;
 }
 
-// Response message types
+// 响应消息类型
 export interface WorkerResponse {
   type: 'progress' | 'success' | 'error';
   id: string;
@@ -54,21 +58,21 @@ export interface WorkerResponse {
 }
 
 /**
- * CPU-friendly delay function
+ * CPU友好的延迟函数
  */
 function cpuFriendlyDelay(ms: number = 0): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
- * Yield control to main thread
+ * 让出控制权给主线程
  */
 function yieldToMainThread(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, 0));
 }
 
 /**
- * Report progress
+ * 报告进度
  */
 function reportProgress(id: string, progress: ProgressReport): void {
   const response: WorkerResponse = {
@@ -82,13 +86,13 @@ function reportProgress(id: string, progress: ProgressReport): void {
 }
 
 /**
- * Generate key and UUID consistent with backend
+ * 生成与后端一致的密钥和UUID
  */
 function generateKeyAndUuid(): { key: Buffer; uuid: string } {
-  // Generate 32-byte key (AES-256)
+  // 生成32字节密钥（AES-256）
   const key = randomBytes(32);
   
-  // Generate UUID (simplified version, consistent with backend format)
+  // 生成UUID（简化版本，与后端格式一致）
   const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -134,11 +138,16 @@ async function encryptDataStream(
       totalBytes
     });
     
-    // CPU control: yield control after processing certain number of chunks
+    // CPU控制：处理一定数量的块后让出控制权
     if ((offset / CPU_CONFIG.CHUNK_SIZE) % CPU_CONFIG.YIELD_INTERVAL === 0) {
       await yieldToMainThread();
     }
-    // 移除不必要的延迟，让CPU全力工作
+    
+    // CPU速率限制（用于测试）
+    if (CPU_CONFIG.THROTTLE_ENABLED && 
+        (offset / CPU_CONFIG.CHUNK_SIZE) % CPU_CONFIG.THROTTLE_CHUNK_INTERVAL === 0) {
+      await cpuFriendlyDelay(CPU_CONFIG.THROTTLE_DELAY);
+    }
   }
   
   // 完成加密
@@ -161,7 +170,7 @@ async function encryptDataStream(
 }
 
 /**
- * Stream decrypt data
+ * 流式解密数据
  */
 async function decryptDataStream(
   encryptedData: Uint8Array,
@@ -173,22 +182,22 @@ async function decryptDataStream(
   let processedBytes = 0;
   const chunks: Uint8Array[] = [];
   
-  // Use first 16 bytes of key as IV (consistent with backend)
+  // 使用密钥前16字节作为IV（与后端一致）
   const iv = key.slice(0, 16);
   const decipher = createDecipheriv('aes-256-cfb8', key, iv);
   
-  // Process in chunks
+  // 分块处理
   for (let offset = 0; offset < totalBytes; offset += CPU_CONFIG.CHUNK_SIZE) {
     const chunkEnd = Math.min(offset + CPU_CONFIG.CHUNK_SIZE, totalBytes);
     const chunk = encryptedData.slice(offset, chunkEnd);
     
-    // Decrypt chunk
+    // 解密块
     const decryptedChunk = decipher.update(chunk);
     chunks.push(new Uint8Array(decryptedChunk));
     
     processedBytes += chunk.length;
     
-    // Report progress
+    // 报告进度
     onProgress({
       stage: 'decrypting',
       percentage: Math.round((processedBytes / totalBytes) * 100),
@@ -196,20 +205,25 @@ async function decryptDataStream(
       totalBytes
     });
     
-    // CPU control: yield control after processing certain number of chunks
+    // CPU控制：处理一定数量的块后让出控制权
     if ((offset / CPU_CONFIG.CHUNK_SIZE) % CPU_CONFIG.YIELD_INTERVAL === 0) {
       await yieldToMainThread();
     }
-    // Remove unnecessary delay, let CPU work at full capacity
+    
+    // CPU速率限制（用于测试）
+    if (CPU_CONFIG.THROTTLE_ENABLED && 
+        (offset / CPU_CONFIG.CHUNK_SIZE) % CPU_CONFIG.THROTTLE_CHUNK_INTERVAL === 0) {
+      await cpuFriendlyDelay(CPU_CONFIG.THROTTLE_DELAY);
+    }
   }
   
-  // Complete decryption
+  // 完成解密
   const finalChunk = decipher.final();
   if (finalChunk.length > 0) {
     chunks.push(new Uint8Array(finalChunk));
   }
   
-  // Merge all chunks
+  // 合并所有块
   const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const result = new Uint8Array(totalLength);
   let offset = 0;
@@ -223,7 +237,7 @@ async function decryptDataStream(
 }
 
 /**
- * Handle encryption request
+ * 处理加密请求
  */
 async function handleEncrypt(message: WorkerMessage): Promise<void> {
   const { data, id } = message;
@@ -237,7 +251,7 @@ async function handleEncrypt(message: WorkerMessage): Promise<void> {
       totalBytes: fileData.byteLength
     });
     
-    // Use provided key or generate new one
+    // 使用提供的密钥或生成新密钥
     let key: Uint8Array;
     if (keyData) {
       key = new Uint8Array(keyData);
@@ -253,14 +267,14 @@ async function handleEncrypt(message: WorkerMessage): Promise<void> {
       totalBytes: fileData.byteLength
     });
     
-    // Encrypt file data
+    // 加密文件数据
     const fileBytes = new Uint8Array(fileData);
     const encryptedData = await encryptDataStream(
       fileBytes,
       key,
       id,
       (progress) => {
-        // Adjust progress range to 5-90%
+        // 调整进度范围到5-90%
         const adjustedProgress = {
           ...progress,
           percentage: 5 + Math.round(progress.percentage * 0.85)
@@ -276,8 +290,8 @@ async function handleEncrypt(message: WorkerMessage): Promise<void> {
       totalBytes: fileData.byteLength
     });
     
-    // Return result - just the encrypted data for consistent key usage
-    // Ensure encryptedData is valid before accessing .buffer
+    // 返回结果 - 仅返回加密数据以保持密钥使用的一致性
+    // 确保encryptedData有效后再访问.buffer
     if (!encryptedData || !(encryptedData instanceof Uint8Array)) {
       throw new Error('Encryption failed: invalid encrypted data');
     }
@@ -310,7 +324,7 @@ async function handleEncrypt(message: WorkerMessage): Promise<void> {
 }
 
 /**
- * Handle decryption request
+ * 处理解密请求
  */
 async function handleDecrypt(message: WorkerMessage): Promise<void> {
   const { data, id } = message;
@@ -320,7 +334,7 @@ async function handleDecrypt(message: WorkerMessage): Promise<void> {
     const response: WorkerResponse = {
       type: 'error',
       id,
-      taskId: id, // Use id as taskId
+      taskId: id, // 使用id作为taskId
       error: 'Key data is required for decryption'
     };
     self.postMessage(response);
@@ -345,13 +359,13 @@ async function handleDecrypt(message: WorkerMessage): Promise<void> {
       totalBytes: fileData.byteLength
     });
     
-    // Decrypt file data
+    // 解密文件数据
     const decryptedData = await decryptDataStream(
       encryptedBytes,
       key,
       id,
       (progress) => {
-        // Adjust progress range to 5-90%
+        // 调整进度范围到5-90%
         const adjustedProgress = {
           ...progress,
           percentage: 5 + Math.round(progress.percentage * 0.85)
@@ -367,8 +381,8 @@ async function handleDecrypt(message: WorkerMessage): Promise<void> {
       totalBytes: fileData.byteLength
     });
     
-    // Return result - just the decrypted data for consistency
-    // Ensure decryptedData is valid before accessing .buffer
+    // 返回结果 - 仅返回解密数据以保持一致性
+    // 确保decryptedData有效后再访问.buffer
     if (!decryptedData || !(decryptedData instanceof Uint8Array)) {
       throw new Error('Decryption failed: invalid decrypted data');
     }
@@ -400,7 +414,7 @@ async function handleDecrypt(message: WorkerMessage): Promise<void> {
   }
 }
 
-// Listen to main thread messages
+// 监听主线程消息
 self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
   const message = event.data;
   

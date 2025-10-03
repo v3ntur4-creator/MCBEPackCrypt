@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Typography, Space, message, Modal, Upload, Form, Card, Row, Col, Progress, Result, Divider, Checkbox } from 'antd';
-import { UploadOutlined, LockOutlined, UnlockOutlined, SafetyOutlined, KeyOutlined, InboxOutlined, CheckCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Typography, Space, message, Modal, Upload, Form, Card, Row, Col, Progress, Result, Divider, Checkbox, Collapse } from 'antd';
+import { UploadOutlined, LockOutlined, UnlockOutlined, SafetyOutlined, KeyOutlined, InboxOutlined, CheckCircleOutlined, DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import ErrorModal from '../components/ErrorModal';
 import DownloadTaskModal from '../components/DownloadTaskModal';
@@ -44,6 +44,76 @@ const HomePage: React.FC = () => {
   
   // 本地计算弹窗状态
   const [localComputeModalVisible, setLocalComputeModalVisible] = useState(false);
+  
+  // 详细信息面板状态
+  const [encryptDetailsVisible, setEncryptDetailsVisible] = useState(true); // 默认展开
+  const [decryptDetailsVisible, setDecryptDetailsVisible] = useState(true); // 默认展开
+  const [encryptLogs, setEncryptLogs] = useState<string[]>([]);
+  const [decryptLogs, setDecryptLogs] = useState<string[]>([]);
+  
+  // 滚动控制refs
+  const encryptLogRef = useRef<HTMLDivElement>(null);
+  const decryptLogRef = useRef<HTMLDivElement>(null);
+  const [encryptIsAtBottom, setEncryptIsAtBottom] = useState(true);
+  const [decryptIsAtBottom, setDecryptIsAtBottom] = useState(true);
+
+  // 检查滚动位置是否在底部
+  const checkScrollPosition = (element: HTMLDivElement, type: 'encrypt' | 'decrypt') => {
+    const isAtBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 5; // 5px tolerance
+    if (type === 'encrypt') {
+      setEncryptIsAtBottom(isAtBottom);
+    } else {
+      setDecryptIsAtBottom(isAtBottom);
+    }
+  };
+
+  // 滚动到底部
+  const scrollToBottom = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  };
+
+  // 添加日志记录函数
+  const addLog = (type: 'encrypt' | 'decrypt', message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    
+    if (type === 'encrypt') {
+      setEncryptLogs(prev => {
+        const newLogs = [...prev, logMessage];
+        // 如果用户在底部，则自动滚动到底部
+        setTimeout(() => {
+          if (encryptIsAtBottom && encryptLogRef.current) {
+            scrollToBottom(encryptLogRef);
+          }
+        }, 0);
+        return newLogs;
+      });
+    } else {
+      setDecryptLogs(prev => {
+        const newLogs = [...prev, logMessage];
+        // 如果用户在底部，则自动滚动到底部
+        setTimeout(() => {
+          if (decryptIsAtBottom && decryptLogRef.current) {
+            scrollToBottom(decryptLogRef);
+          }
+        }, 0);
+        return newLogs;
+      });
+    }
+  };
+
+  // 清空日志
+  const clearLogs = (type: 'encrypt' | 'decrypt') => {
+    if (type === 'encrypt') {
+      setEncryptLogs([]);
+      setEncryptIsAtBottom(true); // 重置滚动状态
+    } else {
+      setDecryptLogs([]);
+      setDecryptIsAtBottom(true); // 重置滚动状态
+    }
+  };
 
   // 检查是否有未完成的下载任务
   useEffect(() => {
@@ -171,11 +241,38 @@ const HomePage: React.FC = () => {
       setEncryptLoading(true);
       setEncryptProgress({ current: 0, total: 100, status: 'starting' });
       
+      // 清空之前的日志并添加开始日志
+      clearLogs('encrypt');
+      addLog('encrypt', t('encrypt.progress.starting'));
+      
       // 使用加密服务适配器
       const result = await cryptoServiceAdapter.encryptFile(
         encryptFile,
         (progress) => {
           setEncryptProgress(progress);
+          
+          // 根据进度状态添加日志
+          if (progress.status === 'processing directories') {
+            addLog('encrypt', t('encrypt.progress.processing_directories'));
+          } else if (progress.status === 'preparing files for encryption') {
+            addLog('encrypt', t('encrypt.progress.preparing_files'));
+          } else if (progress.status.includes('encrypting')) {
+            addLog('encrypt', t('encrypt.progress.encrypting'));
+          } else if (progress.status === 'processing encrypted results') {
+            addLog('encrypt', t('encrypt.progress.processing_results'));
+          } else if (progress.status === 'processing excluded files') {
+            addLog('encrypt', t('encrypt.progress.processing_excluded'));
+          } else if (progress.status === 'generating contents.json') {
+            addLog('encrypt', t('encrypt.progress.generating_contents'));
+          } else if (progress.status === 'finalizing') {
+            addLog('encrypt', t('encrypt.progress.finalizing'));
+          } else if (progress.status === 'completed') {
+            addLog('encrypt', t('encrypt.progress.completed'));
+          }
+        },
+        (detailedLog) => {
+          // 添加详细日志
+          addLog('encrypt', detailedLog);
         }
       );
       
@@ -199,6 +296,7 @@ const HomePage: React.FC = () => {
     } catch (error) {
       console.error('Encryption error:', error);
       setEncryptProgress({ current: 0, total: 100, status: 'error' });
+      addLog('encrypt', `${t('encrypt.progress.error')}: ${error instanceof Error ? error.message : error}`);
       setErrorInfo({
           message: error instanceof Error ? error.message : (error as string || t('encrypt.progress.error')),
           stack: error instanceof Error ? error.stack : undefined
@@ -220,6 +318,10 @@ const HomePage: React.FC = () => {
       setDecryptLoading(true);
       setDecryptProgress({ current: 0, total: 100, status: 'starting' });
       
+      // 清空之前的日志并添加开始日志
+      clearLogs('decrypt');
+      addLog('decrypt', t('decrypt.progress.starting'));
+      
       // 获取表单值
       const formValues = decryptForm.getFieldsValue();
       const preserveContentsJson = formValues.preserveContentsJson || false;
@@ -231,6 +333,25 @@ const HomePage: React.FC = () => {
         preserveContentsJson,
         (progress) => {
           setDecryptProgress(progress);
+          
+          // 根据进度状态添加日志
+          if (progress.status === 'decrypting contents.json') {
+            addLog('decrypt', t('decrypt.progress.decrypting_contents'));
+          } else if (progress.status === 'preparing files for decryption') {
+            addLog('decrypt', t('decrypt.progress.preparing_files'));
+          } else if (progress.status.includes('decrypting')) {
+            addLog('decrypt', t('decrypt.progress.decrypting'));
+          } else if (progress.status === 'processing decrypted results') {
+            addLog('decrypt', t('decrypt.progress.processing_results'));
+          } else if (progress.status === 'copying excluded files') {
+            addLog('decrypt', t('decrypt.progress.copying_excluded'));
+          } else if (progress.status === 'completed') {
+            addLog('decrypt', t('decrypt.progress.completed'));
+          }
+        },
+        (detailedLog) => {
+          // 添加详细日志
+          addLog('decrypt', detailedLog);
         }
       );
       
@@ -255,6 +376,7 @@ const HomePage: React.FC = () => {
     } catch (error) {
       console.error('Decryption error:', error);
       setDecryptProgress({ current: 0, total: 100, status: 'error' });
+      addLog('decrypt', `${t('decrypt.progress.error')}: ${error instanceof Error ? error.message : error}`);
       setErrorInfo({
           message: error instanceof Error ? error.message : (error as string || t('decrypt.progress.error')),
           stack: error instanceof Error ? error.stack : undefined
@@ -295,6 +417,7 @@ const HomePage: React.FC = () => {
                     onClick={() => {
                       // 检查是否有未完成的下载任务
                       if (!checkForPendingDownloadTask()) {
+                        clearLogs('encrypt'); // 清理之前的日志
                         setEncryptModalVisible(true);
                       }
                     }}
@@ -310,6 +433,7 @@ const HomePage: React.FC = () => {
                     onClick={() => {
                       // 检查是否有未完成的下载任务
                       if (!checkForPendingDownloadTask()) {
+                        clearLogs('encrypt'); // 清理之前的日志
                         setEncryptModalVisible(true);
                       }
                     }}
@@ -354,6 +478,7 @@ const HomePage: React.FC = () => {
                     onClick={() => {
                       // 检查是否有未完成的下载任务
                       if (!checkForPendingDownloadTask()) {
+                        clearLogs('decrypt'); // 清理之前的日志
                         setDecryptModalVisible(true);
                       }
                     }}
@@ -369,6 +494,7 @@ const HomePage: React.FC = () => {
                     onClick={() => {
                       // 检查是否有未完成的下载任务
                       if (!checkForPendingDownloadTask()) {
+                        clearLogs('decrypt'); // 清理之前的日志
                         setDecryptModalVisible(true);
                       }
                     }}
@@ -404,11 +530,13 @@ const HomePage: React.FC = () => {
       <Modal
         title={t('encrypt.modal.title')}
         open={encryptModalVisible}
-        onCancel={() => {
+        onCancel={encryptLoading ? undefined : () => {
           setEncryptModalVisible(false);
           setEncryptFile(null);
           encryptForm.resetFields();
         }}
+        closable={!encryptLoading}
+        maskClosable={!encryptLoading}
         footer={[
           <Button key="cancel" onClick={() => {
             setEncryptModalVisible(false);
@@ -474,6 +602,7 @@ const HomePage: React.FC = () => {
                maxCount={1}
                accept=".zip,.mcpack"
                style={{ padding: '20px' }}
+               disabled={encryptLoading}
              >
                <p className="ant-upload-drag-icon">
                  <InboxOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
@@ -485,18 +614,62 @@ const HomePage: React.FC = () => {
              </Dragger>
           </Form.Item>
         </Form>
+        
+        {/* 详细信息面板 */}
+        {encryptLogs.length > 0 && (
+          <Collapse 
+            style={{ marginTop: 16 }}
+            defaultActiveKey={['1']} // 默认展开
+            items={[
+              {
+                key: '1',
+                label: (
+                  <span>
+                    <InfoCircleOutlined style={{ marginRight: 8 }} />
+                    {t('encrypt.details.title')}
+                  </span>
+                ),
+                children: (
+                  <div 
+                    ref={encryptLogRef}
+                    className="stack-trace-container"
+                    style={{ 
+                      backgroundColor: '#fafafa',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                      fontSize: '12px',
+                      lineHeight: '1.4',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      border: '1px solid #e8e8e8'
+                    }}
+                    onScroll={(e) => checkScrollPosition(e.target as HTMLDivElement, 'encrypt')}
+                  >
+                    {encryptLogs.join('\n')}
+                  </div>
+                )
+              }
+            ]}
+            ghost
+          />
+        )}
       </Modal>
 
       {/* 解密文件弹窗 */}
       <Modal
         title={t('decrypt.modal.title')}
         open={decryptModalVisible}
-        onCancel={() => {
+        onCancel={decryptLoading ? undefined : () => {
           setDecryptModalVisible(false);
           setEncryptedFile(null);
           setKeyFile(null);
           decryptForm.resetFields();
         }}
+        closable={!decryptLoading}
+        maskClosable={!decryptLoading}
         footer={[
           <Button key="cancel" onClick={() => {
             setDecryptModalVisible(false);
@@ -561,6 +734,7 @@ const HomePage: React.FC = () => {
                maxCount={1}
                accept=".zip"
                style={{ padding: '20px', marginBottom: '16px' }}
+               disabled={decryptLoading}
              >
                <p className="ant-upload-drag-icon">
                  <LockOutlined style={{ fontSize: '36px', color: '#52c41a' }} />
@@ -594,6 +768,7 @@ const HomePage: React.FC = () => {
                maxCount={1}
                accept=".key"
                style={{ padding: '20px' }}
+               disabled={decryptLoading}
              >
                <p className="ant-upload-drag-icon">
                  <KeyOutlined style={{ fontSize: '36px', color: '#faad14' }} />
@@ -615,6 +790,48 @@ const HomePage: React.FC = () => {
             </Checkbox>
           </Form.Item>
         </Form>
+        
+        {/* 详细信息面板 */}
+        {decryptLogs.length > 0 && (
+          <Collapse 
+            style={{ marginTop: 16 }}
+            defaultActiveKey={['1']} // 默认展开
+            items={[
+              {
+                key: '1',
+                label: (
+                  <span>
+                    <InfoCircleOutlined style={{ marginRight: 8 }} />
+                    {t('decrypt.details.title')}
+                  </span>
+                ),
+                children: (
+                  <div 
+                    ref={decryptLogRef}
+                    className="stack-trace-container"
+                    style={{ 
+                      backgroundColor: '#fafafa',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                      fontSize: '12px',
+                      lineHeight: '1.4',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      border: '1px solid #e8e8e8'
+                    }}
+                    onScroll={(e) => checkScrollPosition(e.target as HTMLDivElement, 'decrypt')}
+                  >
+                    {decryptLogs.join('\n')}
+                  </div>
+                )
+              }
+            ]}
+            ghost
+          />
+        )}
         </Modal>
 
         {/* 成功完成弹窗 */}
@@ -660,7 +877,11 @@ const HomePage: React.FC = () => {
             subTitle={
               <div>
                 <p>{operationType === 'encrypt' ? t('result.encryptMessage') : t('result.decryptMessage')}</p>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('result.expireMessage', { time: successData?.expiresIn || '5 minutes' })}</p>
+                {deploymentMode === 'frontend-only' ? (
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('result.browserDownloadMessage')}</p>
+                ) : (
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('result.expireMessage', { time: successData?.expiresIn || '5 minutes' })}</p>
+                )}
               </div>
             }
           />

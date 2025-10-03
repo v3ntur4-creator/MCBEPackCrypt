@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import CryptoJS from 'crypto-js';
+import i18n from '../i18n';
 
 // Constants matching backend implementation
 const KEY_LENGTH = 32; // 32 characters
@@ -38,9 +39,24 @@ interface EncryptionResult {
   keyFile: Blob;
 }
 
-// Frontend Crypto Service - using crypto-js for AES-256-CFB8
+/**
+ * 前端加密解密服务类
+ * 提供资源包的加密和解密功能
+ */
 export class FrontendCryptoService {
   private progress: ProgressState = { current: 0, total: 100, status: 'idle' };
+  private detailedLogCallback?: (log: string) => void;
+
+  constructor(detailedLogCallback?: (log: string) => void) {
+    this.detailedLogCallback = detailedLogCallback;
+  }
+
+  private addDetailedLog(message: string): void {
+    if (this.detailedLogCallback) {
+      const timestamp = new Date().toLocaleTimeString();
+      this.detailedLogCallback(`[${timestamp}] ${message}`);
+    }
+  }
 
   /**
    * Generate random key (32 characters, matching backend)
@@ -292,6 +308,7 @@ export class FrontendCryptoService {
   async encryptZipFile(file: File, key?: string): Promise<EncryptionResult> {
     try {
       this.updateProgress(0, 100, 'starting');
+      this.addDetailedLog('开始加密过程...');
       
       // Generate key if not provided
       const encryptionKey = key || this.generateRandomKey();
@@ -307,7 +324,7 @@ export class FrontendCryptoService {
       // Find pack UUID
       this.updateProgress(15, 100, 'analyzing files');
       const uuid = await this.findPackUUID(zip);
-      console.log('ContentId:', uuid);
+      this.addDetailedLog(`发现资源包UUID: ${uuid}`);
 
       const contentEntries: ContentEntry[] = [];
       const outputZip = new JSZip();
@@ -324,7 +341,10 @@ export class FrontendCryptoService {
         }
       });
 
+      this.addDetailedLog(`正在分析ZIP文件，共 ${fileEntries.length + dirEntries.length} 个条目`);
+
       this.updateProgress(20, 100, 'processing directories');
+      this.addDetailedLog('正在处理目录结构...');
 
       // Process directories
       for (const dirPath of dirEntries) {
@@ -332,6 +352,10 @@ export class FrontendCryptoService {
       }
 
       this.updateProgress(30, 100, 'preparing files for encryption');
+      
+      // Count files that need encryption
+      const filesToEncrypt = fileEntries.filter(entry => !EXCLUDED_FILES.includes(entry.fileName));
+      this.addDetailedLog(`正在准备文件加密，共 ${filesToEncrypt.length} 个文件需要加密`);
 
       // Process files
       let processedFiles = 0;
@@ -343,9 +367,10 @@ export class FrontendCryptoService {
           const data = await file.async('arraybuffer');
           outputZip.file(fileName, data);
           contentEntries.push({ path: fileName, key: null });
-          console.log('Excluded file:', fileName, 'copied directly');
+          this.addDetailedLog(`排除文件已复制: ${fileName}`);
         } else {
           // Encrypt files
+          this.addDetailedLog(`正在加密文件: ${fileName}`);
           const data = await file.async('arraybuffer');
           const entryKey = this.generateRandomKey();
           
@@ -358,18 +383,20 @@ export class FrontendCryptoService {
           const encryptedData = this.encryptData(data, entryKey);
           outputZip.file(fileName, encryptedData);
           contentEntries.push({ path: fileName, key: entryKey });
-          console.log('File:', fileName, 'encrypted successfully');
+          this.addDetailedLog(`文件加密成功: ${fileName}`);
         }
         
         processedFiles++;
       }
 
       this.updateProgress(85, 100, 'generating contents.json');
+      this.addDetailedLog('正在生成 contents.json 配置文件...');
 
       // Generate contents.json
       await this.generateContentsJson(outputZip, 'contents.json', uuid, encryptionKey, contentEntries);
 
       this.updateProgress(95, 100, 'finalizing zip');
+      this.addDetailedLog('正在完成ZIP文件打包...');
 
       // Generate final ZIP file
       const encryptedZipBlob = await outputZip.generateAsync({
@@ -387,7 +414,7 @@ export class FrontendCryptoService {
       const keyFileBlob = new Blob([JSON.stringify(keyData, null, 2)], { type: 'application/json' });
 
       this.updateProgress(100, 100, 'completed');
-      console.log('Encryption completed. Key:', encryptionKey);
+      this.addDetailedLog('加密过程完成！');
 
       return {
         encryptedZip: encryptedZipBlob,
@@ -396,7 +423,7 @@ export class FrontendCryptoService {
 
     } catch (error) {
       this.updateProgress(0, 100, 'error');
-      console.error('Encryption failed:', error);
+      this.addDetailedLog(`加密失败: ${error instanceof Error ? error.message : error}`);
       throw error;
     }
   }
@@ -411,8 +438,10 @@ export class FrontendCryptoService {
   ): Promise<ArrayBuffer> {
     try {
       this.updateProgress(0, 100, 'starting');
+      this.addDetailedLog('开始解密过程...');
 
       // Read key file
+      this.addDetailedLog('正在读取密钥文件...');
       const keyText = await keyFile.text();
       let keyData: any;
 
@@ -431,12 +460,16 @@ export class FrontendCryptoService {
         throw new Error('Invalid key length');
       }
 
+      this.addDetailedLog('密钥文件验证成功');
+
       // Read ZIP file
       this.updateProgress(10, 100, 'reading zip file');
+      this.addDetailedLog('正在读取加密的ZIP文件...');
       const zipData = await encryptedFile.arrayBuffer();
       const zip = await JSZip.loadAsync(zipData);
 
       this.updateProgress(15, 100, 'decrypting contents.json');
+      this.addDetailedLog('正在解密 contents.json 配置文件...');
 
       // Decrypt contents.json
       const content = await this.decryptContentsJson(zip, 'contents.json', key);
@@ -444,9 +477,12 @@ export class FrontendCryptoService {
         throw new Error('Failed to decrypt contents.json');
       }
 
+      this.addDetailedLog(`contents.json 解密成功，共 ${content.content.length} 个文件条目`);
+
       const outputZip = new JSZip();
 
       this.updateProgress(25, 100, 'preparing files for decryption');
+      this.addDetailedLog('正在准备文件解密...');
 
       // Process files based on contents.json
       let processedFiles = 0;
@@ -459,13 +495,13 @@ export class FrontendCryptoService {
           if (zipEntry) {
             const data = await zipEntry.async('arraybuffer');
             outputZip.file(contentEntry.path, data);
-            console.log('Copying excluded file:', contentEntry.path);
+            this.addDetailedLog(`排除文件已复制: ${contentEntry.path}`);
           }
         } else {
           // Decrypt files
           const zipEntry = zip.file(contentEntry.path);
           if (!zipEntry) {
-            console.error('Zip entry not exists:', contentEntry.path);
+            this.addDetailedLog(`文件不存在: ${contentEntry.path}`);
             continue;
           }
 
@@ -475,10 +511,11 @@ export class FrontendCryptoService {
             `decrypting ${contentEntry.path}`
           );
 
+          this.addDetailedLog(`正在解密文件: ${contentEntry.path}`);
           const encryptedData = await zipEntry.async('arraybuffer');
           const decryptedData = this.decryptData(encryptedData, contentEntry.key);
           outputZip.file(contentEntry.path, decryptedData);
-          console.log('File:', contentEntry.path, 'decrypted successfully');
+          this.addDetailedLog(`文件解密成功: ${contentEntry.path}`);
         }
 
         processedFiles++;
@@ -486,12 +523,13 @@ export class FrontendCryptoService {
 
       // If preserveContentsJson is true, add contents.json to output
       if (preserveContentsJson && content) {
-        console.log('Preserving contents.json file');
+        this.addDetailedLog('正在保留 contents.json 文件');
         const contentsJsonData = JSON.stringify(content, null, 2);
         outputZip.file('contents.json', contentsJsonData);
       }
 
       this.updateProgress(95, 100, 'finalizing zip');
+      this.addDetailedLog('正在完成ZIP文件打包...');
 
       // Generate final ZIP file
       const decryptedData = await outputZip.generateAsync({
@@ -501,13 +539,13 @@ export class FrontendCryptoService {
       });
 
       this.updateProgress(100, 100, 'completed');
-      console.log('Decryption completed successfully');
+      this.addDetailedLog('解密过程完成！');
 
       return decryptedData;
 
     } catch (error) {
       this.updateProgress(0, 100, 'error');
-      console.error('Decryption failed:', error);
+      this.addDetailedLog(`解密失败: ${error instanceof Error ? error.message : error}`);
       throw error;
     }
   }
