@@ -27,7 +27,11 @@ if (!IS_FRONTEND_ONLY) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+// 在开发环境中，使用单独的端口
+// 在生产环境中，使用 PORT 或默认端口 3000
+const PORT = process.env.NODE_ENV === 'production' 
+  ? (process.env.PORT || 3000)
+  : (process.env.BACKEND_PORT || process.env.PORT || 3001);
 
 // 中间件
 app.use(cors({
