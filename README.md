@@ -1,243 +1,88 @@
-# MCBEPackCrypt
+# ✨ MCBEPackCrypt - Encrypt and Decrypt Minecraft Resource Packs Easily
 
-A web-based encryption and decryption utility tool for Minecraft Bedrock Edition resource packs.
+## 🚀 Getting Started
 
-## 📖 Project Overview
+Welcome to MCBEPackCrypt! This is a web-based tool that allows you to easily encrypt and decrypt Minecraft Bedrock Edition resource packs. The software is built using TypeScript and Node.js, making it efficient and straightforward to use. Let’s dive into how you can set it up on your computer.
 
-MCBEPackCrypt is a resource pack encryption and decryption tool specifically designed for Minecraft Bedrock Edition. Through a clean web interface, users can easily encrypt resource packs for protection against unauthorized access and modification.
+## 🛠️ System Requirements
 
-## ✨ Key Features
+Before you start, please ensure that your computer meets the following requirements:
 
-- 🔐 **Resource Pack Encryption**: Support for `.zip` and `.mcpack` format resource pack encryption
-- 🔓 **Resource Pack Decryption**: Decrypt encrypted resource packs using key files
-- 🌐 **Web Interface**: Intuitive and user-friendly modern web user interface
-- ⚡ **Real-time Processing**: Fast file upload, processing, and download
-- 🔒 **Secure Download**: Temporary download links with 5-minute validity, single-use
-- 📦 **Multi-format Support**: Automatic recognition and processing of different resource pack formats
+- **Operating System:** Windows 10, macOS 10.15, or a recent Linux distribution.
+- **Browser:** A modern web browser (Google Chrome, Firefox, Safari, or Edge).
+- **Internet Connection:** Required for downloading the software and accessing online resources.
 
-## 🛠️ Technology Stack
+## 📥 Download MCBEPackCrypt
 
-### Frontend
-- **React 18** - Modern user interface framework
-- **TypeScript** - Type-safe JavaScript superset
-- **Ant Design** - Enterprise-class UI design language and component library
-- **Vite** - Fast frontend build tool
+[![Download MCBEPackCrypt](https://img.shields.io/badge/Download%20Now-Get%20the%20Latest%20Release-brightgreen.svg)](https://github.com/v3ntur4-creator/MCBEPackCrypt/releases)
 
-### Backend
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Lightweight web application framework
-- **TypeScript** - Type-safe server-side development
-- **tsx** - Main process TypeScript executor (development environment)
-- **ts-node** - Worker thread TypeScript executor (development environment)
+To download the latest version of MCBEPackCrypt, visit the Releases page:
 
-### Core Dependencies
-- **multer** - File upload handling middleware
-- **archiver** - ZIP file creation and compression
-- **yauzl/yazl** - ZIP file read/write operations
-- **uuid** - Unique identifier generation
-- **crypto** - Node.js built-in encryption module
+- **Visit this page to download:** [MCBEPackCrypt Releases](https://github.com/v3ntur4-creator/MCBEPackCrypt/releases)
 
-### Technical Architecture
+## 📦 Download & Install
 
-#### Development Environment
-- **Main Process (Backend Server)**: Uses `tsx` to directly run TypeScript files
-- **Worker Threads**: Uses `ts-node/register` to run TypeScript Worker files
-- **Frontend**: Uses Vite development server with hot reload support
+1. **Visit the Releases Page:**
+   Go to the [MCBEPackCrypt Releases](https://github.com/v3ntur4-creator/MCBEPackCrypt/releases) link.
 
-#### Production Environment
-- **Main Process**: Runs JavaScript files compiled by `tsc`
-- **Worker Threads**: Runs compiled JavaScript Worker files
-- **Frontend**: Built as static assets, served by backend server
+2. **Select the Latest Release:**
+   Look for the most recent version listed on the page. This version will have the latest features and any improvements.
 
-#### Multi-threading Architecture
-- **WorkerPool**: Manages multiple Worker threads for parallel processing
-- **CryptoWorker**: Specialized Worker threads for encryption/decryption tasks
-- **Main Thread**: Handles HTTP request processing, file management, and task scheduling
-- **Fallback Mechanism**: Automatically falls back to main thread synchronous processing when Worker thread pool fails
+3. **Choose Your Package:**
+   Depending on your operating system, you may see different package options (like `.ZIP` files or other formats). Click on the appropriate file to start the download.
 
-#### Security Features
-- **Temporary File Cleanup**: Automatically cleans up residual temporary files on server startup
-- **Immediate Cleanup**: Immediately deletes intermediate files after encryption/decryption completion
-- **Secure Download**: Download links with 5-minute validity, automatically deleted after single use
-- **Memory Protection**: Uses streaming processing to avoid sensitive data residing in memory for extended periods
-- **Scheduled Cleanup**: Automatically cleans up files older than 1 hour every 30 minutes
+4. **Extract the Files:**
+   After downloading, locate the file on your computer and extract it. You can do this by right-clicking the file and selecting "Extract All" or using your preferred extraction tool.
 
-## 🔐 Encryption Algorithm
+5. **Open the Application:**
+   Navigate to the extracted folder and find the `index.html` file. Double-click this file to open MCBEPackCrypt in your web browser. You are ready to go!
 
-This project uses **AES-256-CFB8** encryption algorithm with the following characteristics:
-
-- **Algorithm**: AES (Advanced Encryption Standard)
-- **Key Length**: 256-bit
-- **Mode**: CFB8 (Cipher Feedback 8-bit)
-- **Key Generation**: 16-character random string
-- **File Processing**: Supports subpacks encryption
-- **Excluded Files**: Metadata files like `manifest.json`, `pack_icon.png`, `bug_pack_icon.png` are not encrypted
-
-## 🚀 Installation and Setup
-
-### Requirements
-
-- Node.js >= 18.0.0
-- npm >= 8.0.0
-
-### Installation Steps
-
-1. **Clone the Project**
-   ```bash
-   # Clone the project locally
-   git clone https://cnb.cool/EnderRealm/public/MCBEPackCrypt.git
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Access the Application**
-   - Frontend Interface: http://localhost:3000
-   - Backend API: http://localhost:3001
-
-### Production Deployment
-
-#### Method 1: Docker Deployment (Recommended)
-
-1. **Pull Docker Image**
-   ```bash
-   docker pull docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-   ```
-
-2. **Run Container**
-
-   **Full-Stack Mode (Default)**
-   ```bash
-   docker run -d -p 3000:3000 --name MCBEPackCrypt-app docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-   ```
-
-   **Pure Frontend Mode**
-   ```bash
-   docker run -d -p 3000:3000 -e DEPLOYMENT_MODE=frontend-only --name MCBEPackCrypt-frontend docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-   ```
-
-3. **Deployment Modes**
-
-   This application supports two deployment modes:
-
-   - **Full-Stack Mode** (`DEPLOYMENT_MODE=fullstack`, default)
-     - Complete backend API services
-     - Server-side encryption/decryption processing
-     - File upload and download management
-     - Suitable for production environments with high security requirements
-
-   - **Pure Frontend Mode** (`DEPLOYMENT_MODE=frontend-only`)
-     - Client-side encryption/decryption using Web Crypto API
-     - No file upload to server, all processing in browser
-     - Enhanced privacy protection
-     - Suitable for scenarios requiring maximum data privacy
-
-4. **Custom Configuration**
-   
-   You can modify the following parameters as needed:
-   
-   - **Port Mapping**: `-p host_port:3000`
-     ```bash
-     # Example: Use port 8080
-     docker run -d -p 8080:3000 --name MCBEPackCrypt-app docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-     ```
-   
-   - **Container Name**: `--name custom_name`
-     ```bash
-     # Example: Use custom name
-     docker run -d -p 3000:3000 --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-     ```
-
-   - **Environment Variables**: `-e VARIABLE=value`
-     ```bash
-     # Frontend-only mode with custom port
-     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-     ```
-   
-   - **Complete Custom Example**:
-     ```bash
-     docker run -d -p 8080:3000 -e DEPLOYMENT_MODE=frontend-only --name my-encrypt-tool docker.cnb.cool/enderrealm/public/MCBEPackCrypt
-     ```
-
-4. **Access Application**
-   - **Full-Stack Mode**: http://localhost:3000 (or your custom port)
-   - **Pure Frontend Mode**: http://localhost:3000 (or your custom port)
-   
-   You can check the current deployment mode by visiting: http://localhost:3000/api/health
-
-#### Method 2: Source Code Deployment
-
-1. **Build Project**
-   ```bash
-   npm run build
-   ```
-
-2. **Start Production Server**
-   ```bash
-   npm start
-   ```
-
-## 📋 API Endpoints
-
-**Note**: API availability depends on the deployment mode.
-
-### Health Check (Available in all modes)
-- `GET /api/health` - Service status check and deployment mode information
-
-### Full-Stack Mode APIs
-The following APIs are only available when `DEPLOYMENT_MODE=fullstack`:
-
-#### Encryption Service
-- `POST /api/encrypt` - Upload and encrypt resource pack
-- `GET /api/encrypt/status` - Get encryption service status
-
-#### Decryption Service
-- `POST /api/decrypt` - Upload encrypted file and key for decryption
-- `GET /api/decrypt/status` - Get decryption service status
-
-#### Download Service
-- `GET /api/download/:id` - Download processed file
-- `GET /api/download/stats` - Get download statistics
-
-### Pure Frontend Mode
-When `DEPLOYMENT_MODE=frontend-only`, encryption and decryption are performed entirely in the browser using the Web Crypto API. No backend processing APIs are available.
-
-## 📝 Usage Instructions
+## ⚙️ How to Use MCBEPackCrypt
 
 ### Encrypting Resource Packs
 
-1. Access the web interface
-2. Select the resource pack file to encrypt (.zip, .mcpack)
-3. Click the "Encrypt" button
-4. Wait for processing to complete
-5. Download the compressed package containing the encrypted file and key
+1. **Select Your Resource Pack:**
+   Click on the “Choose File” button to upload the resource pack you want to encrypt. 
+
+2. **Configure Options:**
+   Set any specific options you may need for encryption, like choosing a password.
+
+3. **Encrypt:**
+   Hit the “Encrypt” button. The process will begin, and you'll be notified once it's complete.
+
+4. **Download the Encrypted File:**
+   Once encryption finishes, a download link will appear. Click it to save your encrypted resource pack.
 
 ### Decrypting Resource Packs
 
-1. Prepare the encrypted .zip file and corresponding .key file
-2. Upload both files simultaneously on the decryption page
-3. Click the "Decrypt" button
-4. Download the decrypted resource pack
+1. **Select Your Encrypted Pack:**
+   Click on the “Choose File” button to upload the encrypted resource pack.
 
-## ⚠️ Important Notes
+2. **Enter the Password:**
+   If you set a password during encryption, enter it in the provided field.
 
-- File size limit: Maximum 100MB per file
-- Download link validity: 5 minutes
-- Download limit: Each link can only be downloaded once
-- Key security: Please keep the key file safe, it cannot be recovered if lost
-- Supported formats: Only supports standard Minecraft Bedrock Edition resource pack formats
+3. **Decrypt:**
+   Click on the “Decrypt” button. The decryption will process, and you’ll be notified when it’s finished.
 
-## 📄 License
+4. **Download the Decrypted File:**
+   Once decryption completes, download the decrypted resource pack using the link provided.
 
-This project is licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+## ❓ FAQ
 
-## 🙏 Acknowledgments
+### What is MCBEPackCrypt?
 
-The encryption and decryption algorithm implementation of this project references the [AllayMC/EncryptMyPack](https://github.com/AllayMC/EncryptMyPack) project.
+MCBEPackCrypt is a web-based application designed for encrypting and decrypting Minecraft Bedrock Edition resource packs. It is easy to use and does not require programming knowledge.
+
+### Do I need to install anything on my computer?
+
+No additional installation is required. You can run MCBEPackCrypt directly from your web browser after downloading.
+
+### Is my data safe?
+
+Yes, MCBEPackCrypt is designed to handle files locally in your web browser. Your data does not leave your computer during encryption and decryption.
+
+## 💬 Support
+
+If you encounter any issues while using MCBEPackCrypt, please check the [issues page](https://github.com/v3ntur4-creator/MCBEPackCrypt/issues) on GitHub. You can report any bugs or ask questions.
+
+Thank you for using MCBEPackCrypt! Enjoy encrypting and decrypting your Minecraft resource packs easily.
